@@ -5,33 +5,25 @@ __pycache__/
 .Python
 env/
 venv/
-ENV/
-env.bak/
-venv.bak/
 .venv/
+ENV/
 
-# Jupyter Notebooks
+# Jupyter
 .ipynb_checkpoints/
 config_private.ipynb
 
-# Data files
-*.csv
-*.json
-*.xlsx
-*.parquet
-data/raw/
-data/processed/
+# Приватные данные — целиком
+data/
+!data/.gitkeep
 
-# Secrets
+# Секреты
 .env
 AI_ASSISTANT_GUIDE.md
 
-# IDE
+# IDE / OS
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
