@@ -1,0 +1,13 @@
+pandas
+numpy
+pyarrow
+matplotlib
+seaborn
+plotly
+jupyter
+scikit-learn
+streamlit
+scipy
+ruptures
+matplotlib-venn
+pytest
