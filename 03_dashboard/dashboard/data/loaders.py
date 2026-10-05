@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from config import BASE_PATH, DASHBOARD_PATH, load_config
+from config import DASHBOARD_PATH, load_config
 from logic.profile import PORTRAIT_AXIS_TO_INDEX
 
 _CFG = load_config()
@@ -59,7 +59,7 @@ def load_kpi_summary():
 @st.cache_data
 def load_basic_info():
     df = pd.read_parquet(DASHBOARD_PATH / 'eda_enriched.parquet')
-    playlist_links = pd.read_parquet(BASE_PATH / 'playlist_links.parquet')
+    playlist_links = pd.read_parquet(DASHBOARD_PATH / 'playlist_links.parquet')
     max_valid_ts = df.loc[df['valid_play'], 'ts_naive'].max()
     max_added_ts = (
         pd.to_datetime(playlist_links['Added At'], errors='coerce')
