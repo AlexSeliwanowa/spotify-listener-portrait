@@ -1,0 +1,26 @@
+{
+  "cold_start": {
+    "personal_en": "The first months, when there's too little data for reliable conclusions. Shown as a grey zone and excluded from calculations.",
+    "professional_en": "Boundary set by `trim_cold_start`: if the first year has a gap > 1 month, history starts after it. Written to `time_series_meta.parquet` as `first_post_gap_month`. Detectors and Variability start after this point."
+  },
+
+  "storm_episodes": {
+    "personal_en": "Periods when your sound profile shifted faster than usual. Shown as a shaded overlay.",
+    "professional_en": "Rolling std (3-month centered window) over 4 audio features, threshold `median + 1.5·MAD`. Episode = ≥3 storm months within ≤5 months. Direction of change is not fixed."
+  },
+
+  "shift_sound": {
+    "personal_en": "A month where your overall sound profile shifted noticeably.",
+    "professional_en": "PELT-A over 6 audio features, monthly median, BIC penalty, bootstrap ≥10%. Base: valid after `trim_cold_start`. Direction of change is not fixed."
+  },
+
+  "shift_behavior": {
+    "personal_en": "A month where your listening habits changed — volume, skips, returns, obsessions.",
+    "professional_en": "PELT-B over 6 behavioral features (4 smoothed with rolling 3 months), same parameters as PELT-A. Base: all events after `trim_cold_start`. Direction is not fixed."
+  },
+
+  "shift_identity": {
+    "personal_en": "A month where the set of artists you listen to changed.",
+    "professional_en": "Cosine distance between artist sets of adjacent months, peaks via `median + 2·MAD`. Base: all events after `trim_cold_start`. Not computed on genres — too inert."
+  }
+}

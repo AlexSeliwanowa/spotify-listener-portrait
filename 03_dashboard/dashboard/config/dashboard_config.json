@@ -1,0 +1,112 @@
+{
+  "app_title": "Spotify Listener Portrait",
+  "themes": {
+    "personal": {
+      "bg": "#0F0C1B",
+      "sidebar_bg": "#1D1833",
+      "text": "#E0E0FF",
+      "accent_pink": "#FF007F",
+      "accent_blue": "#00F0FF",
+      "accent_green": "#00FF66",
+      "accent_purple": "#AA66FF",
+      "accent_orange": "#FF8800",
+      "accent_yellow": "#FFD700",
+      "accent_cyan": "#00FFC8",
+      "accent_red": "#FF4444",
+      "accent_lime": "#88FF00",
+      "accent_magenta": "#FF44AA",
+      "accent_teal": "#00A896",
+      "accent_amber": "#FF6D00"
+    },
+    "professional": {
+      "bg": "#FFFFFF",
+      "sidebar_bg": "#F5F5F5",
+      "text": "#111111",
+      "accent_pink": "#D81B60",
+      "accent_blue": "#1E88E5",
+      "accent_green": "#43A047",
+      "accent_purple": "#8E24AA",
+      "accent_orange": "#F4511E",
+      "accent_yellow": "#FDD835",
+      "accent_cyan": "#00BFA5",
+      "accent_red": "#E53935",
+      "accent_lime": "#7CB342",
+      "accent_magenta": "#C2185B",
+      "accent_teal": "#00897B",
+      "accent_amber": "#FF6E40"
+    }
+  },
+  "colors": {
+    "low": "#AE2B28",
+    "medium": "#FFCC66",
+    "high": "#4AA85C",
+    "n/a": "#666666"
+  },
+  "level_radius": {
+    "low": 0.70,
+    "medium": 0.85,
+    "high": 1.00,
+    "n/a": 0.60
+  },
+  "cluster_colors": {
+    "personal": {
+      "Energetic Electronic": "accent_pink",
+      "Melancholic Acoustic": "accent_blue",
+      "Atmospheric Ambient": "accent_green",
+      "Bright Dance": "accent_purple",
+      "Dark Groove": "accent_orange",
+      "Vocal Drive": "accent_yellow",
+      "Vocal Melancholy": "accent_cyan",
+      "Organic Rock / Folk": "accent_red",
+      "Synthetic Ambient": "accent_lime",
+      "Pop Groove": "accent_magenta",
+      "Heavy / Dark Drive": "accent_red",
+      "Bright Chill": "accent_lime",
+      "Lo-Fi": "accent_teal",
+      "Mixed Style": "accent_teal"
+    },
+    "professional": {
+      "Energetic Electronic": "accent_blue",
+      "Melancholic Acoustic": "accent_pink",
+      "Atmospheric Ambient": "accent_green",
+      "Bright Dance": "accent_purple",
+      "Dark Groove": "accent_orange",
+      "Vocal Drive": "accent_yellow",
+      "Vocal Melancholy": "accent_cyan",
+      "Organic Rock / Folk": "accent_red",
+      "Synthetic Ambient": "accent_lime",
+      "Pop Groove": "accent_magenta",
+      "Heavy / Dark Drive": "accent_red",
+      "Bright Chill": "accent_lime",
+      "Lo-Fi": "accent_teal",
+      "Mixed Style": "accent_teal"
+    }
+  },
+    "typography": {
+    "personal": {
+      "title": "1.9rem",
+      "subtitle": "1.05rem",
+      "section": "1.4rem",
+      "label": "1rem",
+      "body": "0.95rem",
+      "caption": "0.85rem"
+    },
+    "professional": {
+      "title": "2.25rem",
+      "section": "1.5rem",
+      "subtitle": "1.1rem",
+      "label": "0.95rem",
+      "body": "0.9rem",
+      "caption": "0.8rem"
+    }
+  },
+  "profile_colors": {
+    "restless_wanderer": "accent_magenta",
+    "loyalist": "accent_teal",
+    "curious_collector": "accent_amber",
+    "restless_loyalist": "accent_lime",
+    "renewer": "accent_green",
+    "fading_enthusiast": "accent_orange",
+    "tourist": "accent_yellow"
+  }
+}

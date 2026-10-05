@@ -1,0 +1,52 @@
+{
+  "behavior": {
+    "discovery": {
+      "High_ru": "Активный исследователь — требуется быстрая ротация новинок и постоянное обновление контента.",
+      "High_en": "Active explorer — requires fast rotation of new tracks and constant content refresh.",
+      "Medium_ru": "Сбалансированный поиск/эксплуатация — сочетать знакомое и новое.",
+      "Medium_en": "Balanced exploration/exploitation — combine familiar and new.",
+      "Low_ru": "Лоялен к знакомому — не перегружать новинками, углублять привычное.",
+      "Low_en": "Loyal to the familiar — avoid overloading with novelties, deepen the habitual."
+    },
+    "retention": {
+      "High_ru": "Сильное закрепление новых треков — рекомендации работают эффективно.",
+      "High_en": "Strong retention of new tracks — recommendations work effectively.",
+      "Medium_ru": "Умеренное закрепление — есть потенциал для улучшения удержания новинок.",
+      "Medium_en": "Moderate retention — potential to improve new track retention.",
+      "Low_ru": "Слабое закрепление — новые треки редко возвращаются, проверить соответствие рекомендаций.",
+      "Low_en": "Weak retention — new tracks rarely return, check recommendation relevance."
+    },
+    "burnout": {
+      "High_ru": "Быстрое выгорание любимых треков — нужны динамические плейлисты и свежие релизы.",
+      "High_en": "Fast burnout of favorite tracks — dynamic playlists and fresh releases needed.",
+      "Medium_ru": "Нормальный жизненный цикл core-треков — срочных действий не требуется.",
+      "Medium_en": "Normal lifecycle of core tracks — no urgent actions required.",
+      "Low_ru": "Долгая привязанность к любимым трекам — можно использовать «вечнозелёный» контент.",
+      "Low_en": "Long attachment to favorite tracks — evergreen content can be leveraged."
+    },
+    "variability": {
+      "High_ru": "Частые поведенческие сдвиги — необходимы адаптивные рекомендательные стратегии.",
+      "High_en": "Frequent behavioral shifts — adaptive recommendation strategies required.",
+      "Medium_ru": "Умеренная изменчивость — долгосрочные стратегии работают с периодической коррекцией.",
+      "Medium_en": "Moderate variability — long-term strategies work with periodic adjustments.",
+      "Low_ru": "Стабильное поведение — предсказуемо и подходит для долгосрочного планирования.",
+      "Low_en": "Stable behavior — predictable and suitable for long-term planning."
+    }
+  },
+  "collection": {
+    "dominant_fill_type": {
+      "curated_ru": "Доминируют осознанно курируемые плейлисты — поддерживать инструменты кураторства и персонализации.",
+      "curated_en": "Consciously curated playlists dominate — support curation and personalization tools.",
+      "batch_ru": "Часты пакетные импорты — помочь пользователю навести порядок и объединить плейлисты.",
+      "batch_en": "Frequent batch imports — help the user organize and consolidate playlists.",
+      "mass_import_ru": "Высокая доля массовых импортов — архив тяжёлый; предложить расхламление или ресёрфейсинг.",
+      "mass_import_en": "High share of mass imports — heavy archive; suggest decluttering or resurfacing."
+    },
+    "active_share": {
+      "high_ru": "Сильное активное ядро — использовать для удержания и вовлекающих кампаний.",
+      "high_en": "Strong active core — leverage for retention and engagement campaigns.",
+      "low_ru": "Преобладают заброшенные плейлисты — возможны реактивация или архивация.",
+      "low_en": "Abandoned playlists dominate — consider reactivation or archiving."
+    }
+  }
+}

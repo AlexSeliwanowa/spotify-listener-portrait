@@ -1,0 +1,949 @@
+{
+  "Acoustic-Energy Balance": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often choose calm acoustic tracks, creating a cozy atmosphere",
+      "medium": "You skillfully balance calm and energy",
+      "high": "You gravitate toward energetic, driving music — it charges you up"
+    },
+    "professional_messages": {
+      "low": "Acoustic-leaning profile — low energy, opportunity for relaxing playlists",
+      "medium": "Balanced energy profile, broad audience appeal",
+      "high": "High-energy listener — potential for dynamic campaigns"
+    },
+    "note_short": "Ratio of acoustic to energetic sound",
+    "description_en": "Balance between acoustic (organic) and electronic (synthetic) sound in your music.",
+    "notes_en": "Formula: (mean energy − mean acousticness + 1) / 2. 0 = pure acoustic, 1 = pure electronic.",
+    "polarity": "neutral"
+  },
+  "Active Playlist Days per Year": {
+    "category": "temporal",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You actively worked with playlists on {value:.0f} days this year"
+    },
+    "professional_messages": {
+      "default": "Active playlist days: {value:.0f} — days per year with playlist activity"
+    },
+    "note_short": "Number of days per year with active playlist listening",
+    "description_en": "How many days per year you actively add tracks to your own playlists.",
+    "notes_en": "Unique days with additions to personal/collaborative playlists divided by years in period. Extrapolated for short windows.",
+    "polarity": "higher_better"
+  },
+  "Ambient Factor": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer clear rhythms and melodies, rarely drifting into background sound",
+      "medium": "You sometimes use music as background, but also enjoy bright tracks",
+      "high": "You often listen to ambient and atmospheric music — it helps you relax"
+    },
+    "professional_messages": {
+      "low": "Low ambient share — focus on active listening",
+      "medium": "Moderate ambient consumption, versatile content fit",
+      "high": "High ambient factor — opportunities for background/study playlists"
+    },
+    "note_short": "Share of ambient music in listening",
+    "description_en": "How background/meditative your music is.",
+    "notes_en": "Formula: (mean acousticness + mean instrumentalness) / 2. High value = calm, atmospheric music.",
+    "polarity": "neutral"
+  },
+  "Artist Diversity Index": {
+    "category": "basic",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You deeply immerse yourself in the work of a small number of favorite artists",
+      "medium": "You combine loyalty to favorite names with interest in new ones",
+      "high": "You explore many different performers — your breadth is impressive"
+    },
+    "professional_messages": {
+      "low": "Low artist diversity — loyal core artist base",
+      "medium": "Moderate diversity, balanced listening portfolio",
+      "high": "High diversity — wide reach across artist catalogs"
+    },
+    "note_short": "Variety of artists listened to",
+    "description_en": "How evenly your listening is spread across different artists.",
+    "notes_en": "Normalized Shannon entropy over artist names in valid plays. 0 = one artist dominates, 1 = evenly distributed.",
+    "polarity": "neutral"
+  },
+  "Artist Echo Chamber Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You are open to different performers, not stuck on one sound",
+      "medium": "You sometimes return to similar artists, but also seek new ones",
+      "high": "You deeply immerse yourself in certain musical worlds"
+    },
+    "professional_messages": {
+      "low": "Low echo chamber — diverse artist exposure",
+      "medium": "Moderate echo, balanced discovery vs. familiarity",
+      "high": "High echo chamber — mostly artists you already know, little new artist discovery"
+    },
+    "note_short": "Tendency to listen to similar artists",
+    "description_en": "How much you stick to artists you already know from your history.",
+    "notes_en": "Share of artists in recent 6 quarters that appeared in earlier history. Only recent_6q.",
+    "polarity": "lower_better"
+  },
+  "Average Events per Day": {
+    "category": "temporal",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You generate about {value:.1f} listening events per day on average"
+    },
+    "professional_messages": {
+      "default": "Average daily listening events: {value:.1f} — frequency of engagement"
+    },
+    "note_short": "Average number of listening events per day",
+    "description_en": "Average number of all listening events (including skips and seeks) per music day.",
+    "notes_en": "Total all events divided by number of days with at least one event. Professional metric.",
+    "polarity": "neutral"
+  },
+  "Average Sessions per Day": {
+    "category": "temporal",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You start about {value:.1f} listening sessions per day on average"
+    },
+    "professional_messages": {
+      "default": "Average sessions per day: {value:.1f} — session frequency"
+    },
+    "note_short": "Average number of sessions per day",
+    "description_en": "How many separate listening sessions you start per music day.",
+    "notes_en": "Number of sessions (gap >30 min) divided by music days.",
+    "polarity": "neutral"
+  },
+  "Average Tracks per Day": {
+    "category": "basic",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You play about {value:.0f} tracks per day on average"
+    },
+    "professional_messages": {
+      "default": "Average daily track plays: {value:.0f} — volume of content consumed"
+    },
+    "note_short": "Average number of tracks per day",
+    "description_en": "Average number of valid played tracks per music day.",
+    "notes_en": "Total valid events divided by number of days with listening.",
+    "polarity": "neutral"
+  },
+  "Burnout Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You still return to most of the favorite tracks you've built up over time",
+      "medium": "You return to some of your past favorites, while moving on from others",
+      "high": "You've been moving on from many of your once-favorite tracks over the past year"
+    },
+    "professional_messages": {
+      "low": "Low burnout risk — stable engagement",
+      "medium": "Moderate burnout indicators, monitoring recommended",
+      "high": "High burnout potential — churn risk if overloaded"
+    },
+    "note_short": "Risk of losing interest due to listening overload",
+    "description_en": "How many of your favorite tracks (5+ plays) you haven't played again in the past 12 months.",
+    "notes_en": "Share of core tracks with no valid play in last 12 months. Core = tracks with ≥5 valid plays all time.",
+    "polarity": "lower_better"
+  },
+  "Collaborator Diversity Index": {
+    "category": "playlist",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "Your collaborative playlists are mostly filled by one person",
+      "medium": "A few different people contribute to your collaborative playlists",
+      "high": "Many different people contribute fairly evenly to your collaborative playlists"
+    },
+    "professional_messages": {
+      "low": "Low collaborator diversity — playlists dominated by a single contributor",
+      "medium": "Moderate collaborator diversity — contributions shared among a few people",
+      "high": "High collaborator diversity — contributions spread evenly across many people"
+    },
+    "note_short": "Diversity of contributors in your collaborative playlists",
+    "description_en": "How diverse the participants are in your collaborative playlists.",
+    "notes_en": "Normalized Shannon entropy over Added By in collaborative/contributed playlists, excluding unknown.",
+    "polarity": "neutral"
+  },
+  "Commercial Pressure": {
+    "category": "basic",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer less promoted artists, valuing authenticity",
+      "medium": "You listen to both popular and niche music",
+      "high": "You often choose hits and mainstream tracks"
+    },
+    "professional_messages": {
+      "low": "Low commercial pressure — indie/niche affinity",
+      "medium": "Balanced commercial exposure",
+      "high": "High mainstream exposure — mass market appeal"
+    },
+    "note_short": "Influence of commercial popularity on track choice",
+    "description_en": "How commercially mainstream your music sounds (loudness + popularity).",
+    "notes_en": "Formula: ((loudness+60)/60 + popularity/100) / 2. High = closer to mainstream radio format.",
+    "polarity": "neutral"
+  },
+  "Completion Rate": {
+    "category": "behavioral",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often switch tracks, following your mood",
+      "medium": "You usually finish tracks, but sometimes skip",
+      "high": "You value the integrity of a track and almost always listen to the end"
+    },
+    "professional_messages": {
+      "low": "Low completion rate — skips prevalent",
+      "medium": "Moderate completion, typical engagement",
+      "high": "High completion — strong content affinity"
+    },
+    "note_short": "Share of tracks listened to the end",
+    "description_en": "How often you listen to a track at least 90% of its duration.",
+    "notes_en": "Share of valid plays with played_frac >= 0.9.",
+    "polarity": "higher_better"
+  },
+  "Contextual Skip Ratio": {
+    "category": "behavioral",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "When you skip quickly, it's mostly tracks you haven't spent much time with before",
+      "medium": "Your quick skips are a mix of familiar and unfamiliar tracks",
+      "high": "You often skip tracks you already know and liked — just not in the mood for them right now"
+    },
+    "professional_messages": {
+      "low": "Low contextual skip ratio — quick skips mostly involve unfamiliar tracks",
+      "medium": "Moderate contextual skip ratio — mixed familiar/unfamiliar skip pattern",
+      "high": "High contextual skip ratio — skips are mood-driven, not a sign of poor recommendations"
+    },
+    "note_short": "Share of skips due to context",
+    "description_en": "How many of your quick skips are of tracks you already know well.",
+    "notes_en": "Among skips <10 sec, share where track had previous deep play (>=80% duration). High = skipping familiar music by mood.",
+    "polarity": "lower_better"
+  },
+  "Declining Engagement Rate": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "Your interest in music remains stable and vivid",
+      "medium": "Sometimes your activity dips, but you come back",
+      "high": "You have been turning to music less often — maybe seeking new sources of inspiration"
+    },
+    "professional_messages": {
+      "low": "Low decline — stable engagement trajectory",
+      "medium": "Moderate decline — watch for churn signals",
+      "high": "High decline — re-engagement strategies needed"
+    },
+    "note_short": "Decrease in monthly engagement over your full history",
+    "description_en": "How often your monthly listening volume decreases compared to the previous month.",
+    "notes_en": "Share of months where valid play count is lower than previous month. Only global, needs >=12 months.",
+    "polarity": "lower_better"
+  },
+  "Exploration vs Exploitation Ratio": {
+    "category": "behavioral",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer tried-and-true favorite tracks — that’s your comfort",
+      "medium": "You skillfully combine familiar and new",
+      "high": "You constantly seek new music — your playlist is always fresh"
+    },
+    "professional_messages": {
+      "low": "Exploitation-heavy — loyal to known content",
+      "medium": "Balanced exploration/exploitation",
+      "high": "Exploration-heavy — early adopter potential"
+    },
+    "note_short": "Ratio of new to repeat listening",
+    "description_en": "Balance between seeking new music and re-listening to known tracks.",
+    "notes_en": "Novelty Seeking / (1 − Novelty Seeking). High = more exploration.",
+    "polarity": "neutral"
+  },
+  "External Exposure Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You mostly listen to what you already know and love",
+      "medium": "Sometimes you discover artists from outside your usual channels",
+      "high": "You actively seek music beyond familiar sources"
+    },
+    "professional_messages": {
+      "low": "Low external exposure — reliance on core catalog",
+      "medium": "Moderate external exposure, some discovery",
+      "high": "High external exposure — strong discovery behavior"
+    },
+    "note_short": "Degree of exposure to music outside main flow",
+    "description_en": "How much of your listening comes from external sources (foreign or orphan tracks).",
+    "notes_en": "Share of valid plays where track source is foreign or orphan (not contributed).",
+    "polarity": "higher_better"
+  },
+  "Genre Diversity Index": {
+    "category": "basic",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You are deeply immersed in your favorite genres",
+      "medium": "You try different genres while keeping your preferences",
+      "high": "Your musical taste is very versatile"
+    },
+    "professional_messages": {
+      "low": "Narrow genre focus — deep affinity",
+      "medium": "Moderate genre span",
+      "high": "Wide genre diversity — cross-genre marketing potential"
+    },
+    "note_short": "Number and variety of genres",
+    "description_en": "How evenly your listening is spread across different genres.",
+    "notes_en": "Normalized Shannon entropy over genres of valid plays (excludes 'unknown').",
+    "polarity": "neutral"
+  },
+  "Groove Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You choose music with a light, unobtrusive rhythm",
+      "medium": "You like both calm and danceable sounds",
+      "high": "You get energized by rhythmic, upbeat tracks"
+    },
+    "professional_messages": {
+      "low": "Low groove — prefers laid-back tracks",
+      "medium": "Moderate groove, versatile rhythm preference",
+      "high": "High groove — engagement with dance/upbeat content"
+    },
+    "note_short": "Degree of rhythmicity in preferred music",
+    "description_en": "How rhythmic and danceable your music is.",
+    "notes_en": "Formula: (danceability + (tempo−100)/100) / 2.",
+    "polarity": "neutral"
+  },
+  "Hipster Index": {
+    "category": "basic",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You mostly listen to popular music that many people like",
+      "medium": "You combine mainstream and alternative",
+      "high": "You have a knack for finding rare, unconventional things"
+    },
+    "professional_messages": {
+      "low": "Mainstream profile — wide reach, standard targeting",
+      "medium": "Mixed profile — reach + niche segments",
+      "high": "Underground/niche — low reach, high engagement"
+    },
+    "note_short": "How far the music is from the mainstream",
+    "description_en": "How far your music taste is from the mainstream.",
+    "notes_en": "1 − average popularity of My Music tracks / 100. High = less mainstream.",
+    "polarity": "neutral"
+  },
+  "Interrupted Session Share": {
+    "category": "behavioral",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You usually listen continuously, immersing yourself in the process",
+      "medium": "Sometimes your sessions get interrupted, but you come back",
+      "high": "You often switch between tasks, with music in the background"
+    },
+    "professional_messages": {
+      "low": "Low interrupted share — immersive sessions",
+      "medium": "Moderate interruptions — multi-tasking listener",
+      "high": "High interrupted share — fragmented engagement"
+    },
+    "note_short": "Share of sessions with interruptions",
+    "description_en": "How often your listening sessions contain significant internal pauses.",
+    "notes_en": "Share of sessions with max gap >10 minutes (interrupted type).",
+    "polarity": "lower_better"
+  },
+  "Listening Consistency Index": {
+    "category": "temporal",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You listen in waves — sometimes more, sometimes less",
+      "medium": "Your music activity is fairly steady",
+      "high": "You consistently devote time to music every day"
+    },
+    "professional_messages": {
+      "low": "Low consistency — sporadic engagement",
+      "medium": "Moderate consistency, predictable patterns",
+      "high": "High consistency — reliable daily listener"
+    },
+    "note_short": "Regularity of listening across days",
+    "description_en": "How regularly and stably you listen to music.",
+    "notes_en": "music_day_share × 1/(1+log1p(CV_music)). music_day_share includes all calendar days, CV only music days.",
+    "polarity": "higher_better"
+  },
+  "Loyalty / Retention Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You try lots of new things, but rarely return to them afterward",
+      "medium": "Some new discoveries stick with you, others fade quickly",
+      "high": "Tracks you discover tend to stay with you — you keep coming back to them soon after"
+    },
+    "professional_messages": {
+      "low": "Low loyalty — high churn risk",
+      "medium": "Moderate loyalty, stable retention",
+      "high": "High loyalty — strong retention signal"
+    },
+    "note_short": "Tendency to return to newly discovered tracks",
+    "description_en": "How well you return to new tracks within 90 days after first hearing them.",
+    "notes_en": "Share of new tracks (first valid play) that had a repeat valid play within 90 days. Right-censored.",
+    "polarity": "higher_better"
+  },
+  "Mean Played Fraction": {
+    "category": "behavioral",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often switch tracks without finishing them",
+      "medium": "You usually listen to more than half of a track",
+      "high": "You almost always listen to tracks completely"
+    },
+    "professional_messages": {
+      "low": "Low played fraction — skip-heavy behavior",
+      "medium": "Moderate played fraction, typical consumption",
+      "high": "High played fraction — high completion intent"
+    },
+    "note_short": "Average fraction of a track that is played",
+    "description_en": "Average portion of a track you listen to.",
+    "notes_en": "Mean played_frac for valid plays, clipped to max 1.0.",
+    "polarity": "higher_better"
+  },
+  "Mood Bias": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You tend toward minor, contemplative compositions",
+      "medium": "You mix calm and energetic, sad and happy tracks",
+      "high": "You more often choose cheerful, positive music"
+    },
+    "professional_messages": {
+      "low": "Minor-key preference — reflective mood",
+      "medium": "Balanced mood, broad emotional range",
+      "high": "Major-key preference — fit for upbeat content"
+    },
+    "note_short": "Dominant emotional coloring of music",
+    "description_en": "Emotional tone of your music — from sad and calm to happy and energetic.",
+    "notes_en": "Average of mean valence and mean energy. High = cheerful/energetic, low = sad/calm.",
+    "polarity": "neutral"
+  },
+  "Mood Diversity Index": {
+    "category": "behavioral",
+    "visual_type": "radar",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often listen to music of a single mood",
+      "medium": "You try different emotional shades",
+      "high": "Your musical palette is very rich in emotions"
+    },
+    "professional_messages": {
+      "low": "Narrow mood range — predictable emotional profile",
+      "medium": "Moderate mood diversity",
+      "high": "High mood diversity — complex emotional engagement"
+    },
+    "note_short": "Variety of emotional states in music",
+    "description_en": "How balanced your music is across different emotional quadrants (Russell model).",
+    "notes_en": "Entropy over 4 valence/energy quadrants with absolute thresholds 0.5.",
+    "polarity": "neutral"
+  },
+  "Mood Diversity Index (personal median)": {
+    "category": "behavioral",
+    "visual_type": "radar",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You tend toward a particular mood in music",
+      "medium": "You have several favorite emotional states",
+      "high": "You cover a wide range of moods"
+    },
+    "professional_messages": {
+      "low": "Low median mood diversity — stable preference",
+      "medium": "Moderate median diversity",
+      "high": "High median diversity — versatile emotional consumption"
+    },
+    "note_short": "Median diversity of moods in listening",
+    "description_en": "How evenly your listening is distributed around your own typical mood levels.",
+    "notes_en": "Entropy over quadrants built from personal medians of valence and energy. Global only.",
+    "polarity": "neutral"
+  },
+  "Music Recency Index": {
+    "category": "temporal",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You appreciate timeless classics that never lose relevance",
+      "medium": "You listen to both fresh releases and beloved old tracks",
+      "high": "You are always up to date with new releases and love fresh music"
+    },
+    "professional_messages": {
+      "low": "Low recency — catalog-heavy consumption",
+      "medium": "Balanced recency — mix of new and old",
+      "high": "High recency — early adopter of new releases"
+    },
+    "note_short": "How much fresh music prevails",
+    "description_en": "How much of your listening is to recently released music (last 3 years).",
+    "notes_en": "Share of valid plays with release_year >= max_year − 2.",
+    "polarity": "neutral"
+  },
+  "Night Listening Share": {
+    "category": "temporal",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You mostly listen during the day, in active hours",
+      "medium": "Sometimes music accompanies you at night too",
+      "high": "You love listening late in the evening or at night"
+    },
+    "professional_messages": {
+      "low": "Daytime-dominant listening — standard ad slots",
+      "medium": "Some night listening — extended engagement window",
+      "high": "Night-heavy listening — potential for late-night campaigns"
+    },
+    "note_short": "Share of listening during night hours",
+    "description_en": "How much of your listening happens at night (0–5 AM).",
+    "notes_en": "Share of valid plays in hours 0–5.",
+    "polarity": "neutral"
+  },
+  "Novelty Seeking Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer the familiar and proven",
+      "medium": "You sometimes try something new, but without fanaticism",
+      "high": "You constantly seek fresh sounds and new artists"
+    },
+    "professional_messages": {
+      "low": "Low novelty seeking — comfort in familiarity",
+      "medium": "Moderate novelty, open to discovery",
+      "high": "High novelty — exploration-driven behavior"
+    },
+    "note_short": "Striving for novelty in music",
+    "description_en": "How strongly you seek out new music.",
+    "notes_en": "Median quarterly Discovery Rate. Cold start excluded if history >=24 months, otherwise included with short_history flag.",
+    "polarity": "higher_better"
+  },
+  "Platform Desktop Share": {
+    "category": "temporal",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You listen mostly on mobile devices",
+      "medium": "You use both computer and phone",
+      "high": "You prefer listening on a desktop computer"
+    },
+    "professional_messages": {
+      "low": "Mobile-dominant — on-the-go consumption",
+      "medium": "Mixed device usage",
+      "high": "Desktop-heavy — stationary listening"
+    },
+    "note_short": "Share of listening on desktop",
+    "description_en": "How often you listen on a desktop computer (Windows/Linux).",
+    "notes_en": "Share of valid plays on desktop platforms.",
+    "polarity": "neutral"
+  },
+  "Playlist Creation Frequency": {
+    "category": "playlist",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You create about {value:.1f} new playlists per year"
+    },
+    "professional_messages": {
+      "default": "Playlist creation frequency: {value:.1f} per year — curation activity level"
+    },
+    "note_short": "How often the user creates new playlists",
+    "description_en": "How many new playlists you create per year.",
+    "notes_en": "Number of playlists divided by years between min and max creation date.",
+    "polarity": "higher_better"
+  },
+  "Playlist Redundancy Index": {
+    "category": "playlist",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "Your playlists barely overlap — each is unique",
+      "medium": "Sometimes you add the same tracks to different playlists",
+      "high": "You often duplicate favorite songs across playlists"
+    },
+    "professional_messages": {
+      "low": "Low redundancy — diverse curation",
+      "medium": "Moderate redundancy, some overlap",
+      "high": "High redundancy — consistent core tracks"
+    },
+    "note_short": "Degree of track overlap between playlists",
+    "description_en": "How much you repeat the same tracks across different playlists.",
+    "notes_en": "Share of unique tracks that appear in 2+ own playlists (personal/collaborative).",
+    "polarity": "lower_better"
+  },
+  "Playlist Stickiness Rate": {
+    "category": "playlist",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often change playlists, trying new things",
+      "medium": "You return to some playlists, but not all",
+      "high": "You have favorite playlists that you constantly come back to"
+    },
+    "professional_messages": {
+      "low": "Low stickiness — high playlist turnover",
+      "medium": "Moderate stickiness, selective loyalty",
+      "high": "High stickiness — strong playlist retention"
+    },
+    "note_short": "How often users return to the same playlists",
+    "description_en": "How much of your listening comes from your own playlists.",
+    "notes_en": "Share of valid plays from personal or collaborative playlists.",
+    "polarity": "higher_better"
+  },
+  "Playlist Update Frequency": {
+    "category": "playlist",
+    "visual_type": "bar",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You update your playlists about {value:.1f} times per year"
+    },
+    "professional_messages": {
+      "default": "Playlist update frequency: {value:.1f} per period — update cadence"
+    },
+    "note_short": "How often playlists are updated",
+    "description_en": "How often you update your curated playlists.",
+    "notes_en": "Median days with additions per year among curated playlists (lifespan >30 days).",
+    "polarity": "higher_better"
+  },
+  "Repeat Listening Share": {
+    "category": "behavioral",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You rarely listen to the same thing twice, always seeking new",
+      "medium": "You sometimes return to beloved tracks",
+      "high": "You often replay favorite songs — they never get old"
+    },
+    "professional_messages": {
+      "low": "Low repeat rate — high novelty consumption",
+      "medium": "Moderate repeat, balanced listening",
+      "high": "High repeat rate — strong affinity for favorites"
+    },
+    "note_short": "Share of repeated track plays",
+    "description_en": "How much of your listening is to tracks you've already heard before.",
+    "notes_en": "Sum of (play_count−1) for tracks with >1 play divided by all valid plays.",
+    "polarity": "neutral"
+  },
+  "Session Depth Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer short musical breaks",
+      "medium": "You sometimes immerse yourself in long sessions",
+      "high": "You love long sessions, fully diving into music"
+    },
+    "professional_messages": {
+      "low": "Shallow sessions — snackable consumption",
+      "medium": "Moderate session depth",
+      "high": "Deep sessions — immersive engagement"
+    },
+    "note_short": "Average duration and involvement of sessions",
+    "description_en": "How long your typical listening session is.",
+    "notes_en": "min(1, median session duration in minutes / 60).",
+    "polarity": "higher_better"
+  },
+  "Skip Risk Index": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You rarely skip tracks — usually everything works",
+      "medium": "Sometimes you skip what doesn’t fit",
+      "high": "You often skip tracks, quickly switching"
+    },
+    "professional_messages": {
+      "low": "Low skip risk — high content satisfaction",
+      "medium": "Moderate skip risk, some mismatch",
+      "high": "High skip risk — recommendation quality concerns"
+    },
+    "note_short": "Share of listening events that are skips",
+    "description_en": "How often you skip tracks.",
+    "notes_en": "Share of all events with is_skip = True (ms_played <10 sec).",
+    "polarity": "lower_better"
+  },
+  "Social Music Share": {
+    "category": "basic",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer listening to music alone",
+      "medium": "Sometimes you share music with others",
+      "high": "Music is a social experience for you — you love to share"
+    },
+    "professional_messages": {
+      "low": "Low social sharing — private listening",
+      "medium": "Moderate social engagement",
+      "high": "High social sharing — viral potential"
+    },
+    "note_short": "Share of social interaction with music",
+    "description_en": "How much of your listening comes from collaborative or contributed playlists.",
+    "notes_en": "Share of valid plays from collaborative and contributed playlists.",
+    "polarity": "neutral"
+  },
+  "Top Artist Share": {
+    "category": "basic",
+    "visual_type": "donut",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You don’t get stuck on one artist — you listen to many",
+      "medium": "You have favorites, but you don’t limit yourself to them",
+      "high": "You are deeply devoted to your favorite artists"
+    },
+    "professional_messages": {
+      "low": "Low top artist concentration — diverse portfolio",
+      "medium": "Moderate concentration, balanced artist affinity",
+      "high": "High concentration — potential for artist-focused campaigns"
+    },
+    "note_short": "Share of listening concentrated in your top 10 artists",
+    "description_en": "How concentrated your listening is on your top 10 artists.",
+    "notes_en": "Share of valid plays by top-10 artists.",
+    "polarity": "neutral"
+  },
+  "Total Listening Hours": {
+    "category": "basic",
+    "visual_type": "card",
+    "thresholds": null,
+    "personal_messages": {
+      "default": "You've spent {value:.1f} hours listening to music so far"
+    },
+    "professional_messages": {
+      "default": "Total listening hours: {value:.1f} — overall engagement volume"
+    },
+    "note_short": "Total number of listening hours",
+    "description_en": "Total time you have spent listening to music (valid plays).",
+    "notes_en": "Sum of ms_played for valid plays divided by 3,600,000.",
+    "polarity": "neutral"
+  },
+  "Track Diversity Index": {
+    "category": "basic",
+    "visual_type": "card",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You often return to the same tracks",
+      "medium": "You listen to different tracks, but have favorites",
+      "high": "You constantly discover new compositions"
+    },
+    "professional_messages": {
+      "low": "Low track diversity — repetitive consumption",
+      "medium": "Moderate track diversity",
+      "high": "High track diversity — wide content exposure"
+    },
+    "note_short": "Variety of tracks listened to",
+    "description_en": "How evenly your listening is spread across different tracks.",
+    "notes_en": "Normalized Shannon entropy over track play counts.",
+    "polarity": "higher_better"
+  },
+  "Vocalness Index": {
+    "category": "basic",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You prefer instrumental music",
+      "medium": "You like both vocals and instrumentals",
+      "high": "You appreciate expressive vocals in songs"
+    },
+    "professional_messages": {
+      "low": "Low vocalness — instrumental preference",
+      "medium": "Balanced vocal and instrumental",
+      "high": "High vocalness — vocal-driven engagement"
+    },
+    "note_short": "Share of vocal music in listening",
+    "description_en": "How much of your music contains vocals.",
+    "notes_en": "1 − mean instrumentalness. 1 = fully vocal, 0 = instrumental.",
+    "polarity": "neutral"
+  },
+  "Variability": {
+    "category": "behavioral",
+    "visual_type": "gauge",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "Your music taste is stable and consistent over time",
+      "medium": "Your preferences gradually shift, keeping things interesting",
+      "high": "Your musical profile changes often — you are always evolving"
+    },
+    "professional_messages": {
+      "low": "Low variability — stable, predictable listening profile",
+      "medium": "Moderate variability, gradual taste evolution",
+      "high": "High variability — frequent shifts, challenging for retention models"
+    },
+    "note_short": "How often your music profile changes (PELT changepoints per year)",
+    "description_en": "How often your music profile changes over time.",
+    "notes_en": "Number of PELT changepoints per year based on 7 audio/behavioral metrics.",
+    "max_value": 1.5,
+    "polarity": "lower_better"
+  },
+  "Music Day Share": {
+    "category": "temporal",
+    "visual_type": "bar",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "You had music on {value:.0%} of days",
+      "medium": "You had music on {value:.0%} of days",
+      "high": "You had music on {value:.0%} of days",
+      "default": "You had music on {value:.0%} of days"
+    },
+    "professional_messages": {
+      "low": "Low music day share: {value:.0%} of days — infrequent daily engagement",
+      "medium": "Moderate music day share: {value:.0%} of days — regular but not daily engagement",
+      "high": "High music day share: {value:.0%} of days — near-daily engagement",
+      "default": "Music day share: {value:.0%} — how often music appears in daily life"
+    },
+    "note_short": "Share of days with at least one play",
+    "description_en": "How many days you actually listened to music, out of all days in the period.",
+    "notes_en": "Share of calendar days with at least one valid play.",
+    "polarity": "higher_better"
+  },
+  "Listening Variability": {
+    "category": "temporal",
+    "visual_type": "bar",
+    "thresholds": [
+      0.3,
+      0.5
+    ],
+    "personal_messages": {
+      "low": "Your day-to-day listening varies with a score of {value:.2f}",
+      "medium": "Your day-to-day listening varies with a score of {value:.2f}",
+      "high": "Your day-to-day listening varies with a score of {value:.2f}",
+      "default": "Your day-to-day listening varies with a score of {value:.2f}"
+    },
+    "professional_messages": {
+      "low": "Low listening variability ({value:.2f}) — stable, predictable daily pattern",
+      "medium": "Moderate listening variability ({value:.2f}) — some day-to-day fluctuation",
+      "high": "High listening variability ({value:.2f}) — unpredictable daily pattern, challenging for engagement modeling",
+      "default": "Listening variability (CV): {value:.2f} — day-to-day fluctuation"
+    },
+    "note_short": "Coefficient of variation across days",
+    "description_en": "How much your daily listening volume fluctuates. Higher = more uneven.",
+    "notes_en": "Coefficient of variation of daily play counts. 0 = perfectly even, 2+ = very uneven.",
+    "polarity": "lower_better"
+  }
+  
+}

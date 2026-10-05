@@ -1,0 +1,74 @@
+{
+  "profiles": [
+    {
+      "id": "restless_wanderer",
+      "code": "MLHH",
+      "name_ru": "Метеор",
+      "name_en": "Restless Wanderer",
+      "description_ru": "Средний поиск, слабое закрепление, быстрое выгорание, высокая изменчивость. Постоянное движение без длительных привязанностей.",
+      "description_en": "Moderate discovery, weak retention, fast burnout, high variability. Constant motion without long-term attachments.",
+      "personal_phrase_ru": "Ты постоянно в движении, быстро загораешься и так же быстро остываешь.",
+      "personal_phrase_en": "You're constantly on the move — you ignite quickly and cool down just as fast."
+    },
+    {
+      "id": "loyalist",
+      "code": "LHML",
+      "name_ru": "Хранитель",
+      "name_en": "Loyalist",
+      "description_ru": "Мало нового, но найденное удерживается, умеренное выгорание, стабильное поведение.",
+      "description_en": "Little new discovery, but what's found is retained well. Moderate burnout, stable behavior.",
+      "personal_phrase_ru": "Ты ценишь глубину и остаёшься верен любимому.",
+      "personal_phrase_en": "You value depth and stay true to what you love."
+    },
+    {
+      "id": "curious_collector",
+      "code": "HHLM",
+      "name_ru": "Коллекционер",
+      "name_en": "Curious Collector",
+      "description_ru": "Много находит, хорошо сохраняет, почти не выгорает, умеренно стабилен. Редкий, идеальный для кураторов.",
+      "description_en": "Discovers a lot, retains well, rarely burns out, moderately stable. A rare type — ideal for curators.",
+      "personal_phrase_ru": "Ты умеешь находить новое и бережно хранить его.",
+      "personal_phrase_en": "You know how to find new music and cherish it."
+    },
+    {
+      "id": "restless_loyalist",
+      "code": "LMLH",
+      "name_ru": "Непоседа",
+      "name_en": "Restless Loyalist",
+      "description_ru": "Низкий поиск, но высокая изменчивость. Изменения чаще связаны с контекстом, а не с новизной.",
+      "description_en": "Low discovery, but high variability. Changes are driven more by context than by novelty.",
+      "personal_phrase_ru": "Твои музыкальные волны меняются, хотя новых треков немного.",
+      "personal_phrase_en": "Your musical tides keep shifting, even though there aren't many new tracks."
+    },
+    {
+      "id": "renewer",
+      "code": "MHHM",
+      "name_ru": "Обновитель",
+      "name_en": "Renewer",
+      "description_ru": "Хорошо удерживает новое, но быстро устаёт от старого. Характерен для тех, кто постоянно обновляет коллекцию.",
+      "description_en": "Retains new music well but grows tired of the old quickly. Typical of those who constantly refresh their collection.",
+      "personal_phrase_ru": "Ты постоянно обновляешь свою музыку, оставляя лучшее.",
+      "personal_phrase_en": "You're constantly refreshing your music, keeping only the best."
+    },
+    {
+      "id": "fading_enthusiast",
+      "code": "MLHL",
+      "name_ru": "Угасающий энтузиаст",
+      "name_en": "Fading Enthusiast",
+      "description_ru": "Средний поиск, слабое удержание, высокое выгорание, но низкая изменчивость. Интерес постепенно затухает.",
+      "description_en": "Moderate discovery, weak retention, high burnout, but low variability. Interest gradually fades over time.",
+      "personal_phrase_ru": "Твой интерес к новой музыке постепенно затухает.",
+      "personal_phrase_en": "Your interest in new music is gradually fading."
+    },
+    {
+      "id": "tourist",
+      "code": "HLLM",
+      "name_ru": "Турист",
+      "name_en": "Tourist",
+      "description_ru": "Много пробует, мало что остаётся, выгорания почти нет (мало любимых). Типичный «сёрфер» потока.",
+      "description_en": "Tries a lot, keeps little, almost no burnout (few favorites). A typical stream 'surfer'.",
+      "personal_phrase_ru": "Ты легко пробуешь много нового, не привязываясь надолго.",
+      "personal_phrase_en": "You easily try lots of new things without getting attached for long."
+    }
+  ]
+}
