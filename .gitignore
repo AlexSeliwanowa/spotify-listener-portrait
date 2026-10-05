@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *.so
 .Python
@@ -12,9 +13,16 @@ ENV/
 .ipynb_checkpoints/
 config_private.ipynb
 
-# Приватные данные — целиком
-data/
-!data/.gitkeep
+# Приватные данные — только корневая data/
+/data/
+!/data/.gitkeep
+
+# Local masking (private)
+scripts/mask_data.py
+scripts/mask_config.json
+data_masked/
+
+
 
 # Секреты
 .env
