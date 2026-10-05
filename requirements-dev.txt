@@ -1,0 +1,7 @@
+jupyter
+matplotlib
+seaborn
+scikit-learn
+ruptures
+matplotlib-venn
+pytest
