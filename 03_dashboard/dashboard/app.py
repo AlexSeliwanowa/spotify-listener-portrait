@@ -150,14 +150,14 @@ h1, h2, h3, h4, h5, h6, p, span, div, label {{
 }}
 
 /* === РАДИО-КНОПКИ === */
-.stRadio div.st-emotion-cache-he5m1v {{
+.stRadio [data-baseweb="radio"] > div:first-child {{
     width: 14px !important;
     height: 14px !important;
     border-radius: 50% !important;
     border: 2px solid {interactive_accent} !important;
     background-color: {theme['bg']} !important;
 }}
-.stRadio div.st-emotion-cache-he5m1v > div {{
+.stRadio [data-baseweb="radio"] > div:first-child > div {{
     display: none !important;
 }}
 
