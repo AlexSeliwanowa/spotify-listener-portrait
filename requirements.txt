@@ -1,4 +1,5 @@
-streamlit==1.60.0pandas
+streamlit==1.60.0
+pandas
 numpy
 pyarrow
 plotly
