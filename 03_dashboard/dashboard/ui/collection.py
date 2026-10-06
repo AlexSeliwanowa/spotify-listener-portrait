@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -21,7 +22,8 @@ def render(mode, selected_stage, cfg):
     theme = cfg['dashboard']['themes'][mode.lower()]
     kpi_summary = load_kpi_summary()
 
-    st.subheader('Collection')
+    st.markdown("<div class='ui-title'>Collection</div>", unsafe_allow_html=True)
+   
 
     playlist_portraits = load_parquet('collection/playlist_portraits.parquet')
     playlist_collaborators = load_parquet('collection/playlist_collaborators.parquet')
@@ -130,12 +132,12 @@ def _render_personal(playlist_portraits, playlist_collaborators,
         fig_radar.add_trace(go.Scatterpolar(
             r=radar_values_closed, theta=radar_labels_closed,
             fill='toself', name='This playlist',
-            line=dict(color=theme['accent_blue'], width=2),
-            fillcolor='rgba(0,240,255,0.15)',
+            line=dict(color=theme['accent_pink'], width=2),
+            fillcolor='rgba(255,0,127,0.15)',
             hovertemplate='<b>%{theta}</b><br>This playlist: %{r:.2f}<extra></extra>',
             hoverlabel=dict(
                 bgcolor=theme['sidebar_bg'],
-                bordercolor=theme['accent_blue'],
+                bordercolor=theme['accent_pink'],
                 font=dict(color=theme['text'], size=12)
             )
         ))
@@ -311,22 +313,24 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
     dash_config = cfg['dashboard']
     takeaway = cfg['takeaway']
     professional_theme = dash_config['themes']['professional']
+    st.markdown(
+        "<div class='ui-subtitle'>"
+        "Playlist collection metrics — how playlists were built, "
+        "how they're maintained, and how they age."
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     st.caption("Base: playlist-level metadata, not event-based.")
 
+    st.markdown("---")
+    
     if selected_stage != 'global':
         st.info(
             "Playlist collection metrics (takeaway, fill types, activity) "
             "are computed on the full history. Switch to Lifetime to see them."
         )
     else:
-        st.markdown(
-            "<div class='ui-section'>Product takeaway</div>"
-            "<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
-            "Recommendations generated from the current playlist collection."
-            "</div>",
-            unsafe_allow_html=True
-        )
 
         takeaways_col = []
 
@@ -351,7 +355,17 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
                 takeaways_col.append(active_share_text)
 
         if takeaways_col:
-            bullets_html = "<ul style='margin:0; padding-left:18px;'>"
+            bg_color = _hex_to_rgba(professional_theme['text'], 0.05)
+            bullets_html = (
+                f"<div style='background:{bg_color}; "
+                f"border-radius:10px; padding:20px 24px; "
+                f"border-left:3px solid {professional_theme['accent_blue']}'>"
+                f"<div class='ui-section' style='margin-top:0'>Product takeaway</div>"
+                f"<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
+                f"Recommendations generated from the current playlist collection."
+                f"</div>"
+                f"<ul style='margin:0; padding-left:18px;'>"
+            )
             for t in takeaways_col:
                 bullets_html += (
                     f"<li style='font-size:1rem; font-weight:600; "
@@ -359,10 +373,18 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
                     f"<span style='color:{professional_theme['accent_blue']}'>{t}</span>"
                     f"</li>"
                 )
-            bullets_html += "</ul>"
+            bullets_html += "</ul></div>"
             st.markdown(bullets_html, unsafe_allow_html=True)
         else:
             st.info("No takeaway data available.")
+
+
+
+
+
+
+
+
 
         st.markdown("---")
         st.markdown(
@@ -437,12 +459,22 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
             "</div>",
             unsafe_allow_html=True
         )
+
+
+
         if activity_scatter is not None and not activity_scatter.empty:
+            # Защита от нулей и NaN — log(0) не существует
+            activity_scatter = activity_scatter.copy()
+            activity_scatter['listens_plot'] = (
+                activity_scatter['total_listens'].fillna(1).clip(lower=1)
+            )
+
             fig_scatter = px.scatter(
                 activity_scatter,
                 x='days_since_update',
-                y='total_listens',
+                y='listens_plot',
                 size='unique_tracks',
+                size_max=30, 
                 color='fill_type',
                 hover_name='name_norm',
                 color_discrete_map={
@@ -453,10 +485,24 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
                 },
                 labels={
                     'days_since_update': 'Days since update',
-                    'total_listens': 'Total valid listens',
+                    'listens_plot': 'Total valid listens',
                     'unique_tracks': 'Unique tracks'
                 }
             )
+
+            fig_scatter.update_traces(
+                marker=dict(line=dict(color='rgba(255,255,255,0.3)', width=0.5)),
+                hoverlabel=dict(
+                    bgcolor=theme['sidebar_bg'],
+                    bordercolor=professional_theme['accent_pink'],
+                    font=dict(color=theme['text'], size=12)
+                )
+            )            
+
+            # Границы лог-шкалы — как в ноуте
+            max_listens = activity_scatter['listens_plot'].max()
+            fig_scatter.update_yaxes(type='log', range=[0, np.log10(max_listens * 1.5)])
+
             fig_scatter.update_layout(
                 height=450,
                 paper_bgcolor=theme['bg'],
@@ -465,7 +511,9 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
                 xaxis=dict(tickfont=dict(color=theme['text']),
                            title_font=dict(color=theme['text'])),
                 yaxis=dict(tickfont=dict(color=theme['text']),
-                           title_font=dict(color=theme['text'])),
+                           title_font=dict(color=theme['text']),
+                           showgrid=True, gridcolor='rgba(128,128,128,0.15)',
+                           zeroline=False),
                 legend=dict(font=dict(color=theme['text']))
             )
 
@@ -488,6 +536,10 @@ def _render_professional(playlist_portraits, selected_stage, theme, cfg):
             st.plotly_chart(fig_scatter, width='stretch',
                             config={'displayModeBar': False},
                             key='collection_pro_activity')
+            st.caption(
+                "Dashed vertical line — median days since update. "
+                "Dashed horizontal line — median total listens."
+            )
         else:
             st.info("No activity data.")
 

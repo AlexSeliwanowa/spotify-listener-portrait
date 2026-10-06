@@ -235,7 +235,7 @@ div[data-testid="stPopoverBody"] * {{
 }}
 
 [class*="st-key-pro-card"] {{
-    border: 2px solid {period_accent} !important;
+    border: 3px solid {period_accent} !important;
     border-radius: 10px !important;
     padding: 0.4rem !important;
     min-height: 310px !important;

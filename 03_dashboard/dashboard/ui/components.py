@@ -70,7 +70,7 @@ def render_single_variant_v3_dot(index_name, kpi_df, selected_stage, theme, cfg,
         head_col1, head_col2 = st.columns([6, 1])
         with head_col1:
             st.markdown(
-                f"<div style='font-size:1.5rem; font-weight:700; "
+                f"<div style='font-size:2rem; font-weight:700; "
                 f"color:{neutral}; margin-top:12px; margin-bottom:2px; line-height:1.15; "
                 f'display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; '
                 f"overflow:hidden; min-height:3.45rem'>{index_name}</div>",
@@ -134,7 +134,7 @@ def render_single_variant_v3_dot(index_name, kpi_df, selected_stage, theme, cfg,
             st.markdown(
                 f"<div style='display:flex; flex-wrap:wrap; align-items:flex-start; gap:8px; margin:4px 0 12px 0'>"
                 f"<div style='flex:0 0 auto; font-size:2rem; font-weight:700; color:{accent}; line-height:1.05; white-space:nowrap'>{val_str}{delta_html}</div>"
-                f"<div style='flex:1 1 140px; font-size:1rem; color:{phrase_color}; font-weight:500; line-height:1.2; text-align:left; "
+                f"<div style='flex:1 1 140px; font-size:1.3rem; color:{phrase_color}; font-weight:500; line-height:1.2; text-align:left; "
                 f'display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden' f"'>{main_phrase}</div>"
                 f"</div>",
                 unsafe_allow_html=True
@@ -265,7 +265,7 @@ def render_single_variant_v4_capsules(index_name, kpi_df, selected_stage, theme,
         head_col1, head_col2 = st.columns([6, 1])
         with head_col1:
             st.markdown(
-                f"<div style='font-size:1.5rem; font-weight:700; "
+                f"<div style='font-size:2rem; font-weight:700; "
                 f"color:{neutral}; margin-top:12px; margin-bottom:2px; line-height:1.15; "
                 f'display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; '
                 f"overflow:hidden; min-height:3.45rem'>{index_name}</div>",
@@ -330,7 +330,7 @@ def render_single_variant_v4_capsules(index_name, kpi_df, selected_stage, theme,
             st.markdown(
                 f"<div style='display:flex; flex-wrap:wrap; align-items:flex-start; gap:8px; margin:12px 0 12px 0'>"
                 f"<div style='flex:0 0 auto; font-size:2rem; font-weight:700; color:{accent}; line-height:1.05; white-space:nowrap'>{val_str}{delta_html}</div>"
-                f"<div style='flex:1 1 140px; font-size:1rem; color:{phrase_color}; font-weight:500; line-height:1.2; text-align:left; "
+                f"<div style='flex:1 1 140px; font-size:1.3rem; color:{phrase_color}; font-weight:500; line-height:1.2; text-align:left; "
                 f'display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden' f"'>{main_phrase}</div>"
                 f"</div>",
                 unsafe_allow_html=True

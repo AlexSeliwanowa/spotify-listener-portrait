@@ -16,7 +16,9 @@ def render(mode, selected_stage, cfg):
     theme = cfg['dashboard']['themes'][mode.lower()]
     kpi_summary = load_kpi_summary()
 
-    st.subheader('Behavior')
+    st.markdown("<div class='ui-title'>Behavior</div>", unsafe_allow_html=True)
+
+
 
     portrait = load_portrait()
 
@@ -147,7 +149,7 @@ def _render_personal(portrait_indexed, user_levels, profile,
             y=obs_base['obsession_share'],
             name='Base obsession',
             marker_color=dash_config['themes']['personal']['accent_blue'],
-            opacity=0.55,
+            opacity=0.85,
             yaxis='y',
             hovertemplate='%{x}: %{y:.1f}%<extra></extra>'
         ))
@@ -157,9 +159,10 @@ def _render_personal(portrait_indexed, user_levels, profile,
             y=obs_strong_peak['repeats'],
             mode='markers',
             marker=dict(
-                size=obs_strong_peak['hours'].clip(upper=15) * 2,
-                color=dash_config['themes']['personal']['accent_pink'],
-                symbol='diamond'
+                size=obs_strong_peak['hours'].clip(upper=15) * 3 + 8,
+                color=dash_config['themes']['personal']['accent_magenta'],
+                symbol='diamond',
+                opacity=1.0
             ),
             name='Strong obsession',
             customdata=obs_strong_peak[['track_name', 'artist_name', 'repeats', 'hours']],
@@ -256,7 +259,8 @@ def _render_professional(portrait_indexed, user_levels,
     )
 
     st.caption("Base: valid plays; Skip Risk Index and Funnels — all events.")
-    
+    st.markdown("---")
+
     if selected_stage == 'last_90d':
         st.info(
             "Listener portrait is not available for the Last 90 days window. "
@@ -265,13 +269,8 @@ def _render_professional(portrait_indexed, user_levels,
             "Last 18 months."
         )
     else:
-        st.markdown(
-            "<div class='ui-section'>Product takeaway</div>"
-            "<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
-            "Recommendations generated from the current listener portrait."
-            "</div>",
-            unsafe_allow_html=True
-        )
+
+
 
         takeaways = []
         for axis in ['discovery', 'retention', 'burnout', 'variability']:
@@ -286,7 +285,17 @@ def _render_professional(portrait_indexed, user_levels,
                     takeaways.append(t)
 
         if takeaways:
-            bullets_html = "<ul style='margin:0; padding-left:18px;'>"
+            bg_color = 'rgba(0, 0, 0, 0.04)'
+            bullets_html = (
+                f"<div style='background:{bg_color}; "
+                f"border-radius:10px; padding:20px 24px; "
+                f"border-left:3px solid {period_accent}'>"
+                f"<div class='ui-section' style='margin-top:0'>Product takeaway</div>"
+                f"<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
+                f"Recommendations generated from the current listener portrait."
+                f"</div>"
+                f"<ul style='margin:0; padding-left:18px;'>"
+            )
             for t in takeaways:
                 bullets_html += (
                     f"<li style='font-size:1rem; font-weight:600; "
@@ -294,11 +303,14 @@ def _render_professional(portrait_indexed, user_levels,
                     f"<span style='color:{period_accent}'>{t}</span>"
                     f"</li>"
                 )
-            bullets_html += "</ul>"
+            bullets_html += "</ul></div>"
             st.markdown(bullets_html, unsafe_allow_html=True)
 
-        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
 
+
+
+        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+        st.markdown("---")
         col1, spacer, col2 = st.columns([1, 0.25, 1])
 
 
@@ -725,7 +737,13 @@ def _render_professional(portrait_indexed, user_levels,
                 z=cohorts[['retention_30d', 'retention_90d', 'retention_180d']].values,
                 x=['30d', '90d', '180d'],
                 y=cohorts['cohort'],
-                colorscale='Blues',
+                colorscale=[
+                    [0.0, '#F5F5F5'],
+                    [0.25, '#B3D9F5'],
+                    [0.5, '#66B2EA'],
+                    [0.75, '#2E7BC4'],
+                    [1.0, '#0D47A1'],
+                ],
                 colorbar=dict(
                     title=dict(text='Retention %', font=dict(color=theme['text'])),
                     tickfont=dict(color=theme['text'])

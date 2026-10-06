@@ -74,7 +74,8 @@ def render(mode, selected_stage, cfg):
     theme = cfg['dashboard']['themes'][mode.lower()]
     kpi_summary = load_kpi_summary()
 
-    st.subheader('Overview')
+    st.markdown("<div class='ui-title'>Overview</div>", unsafe_allow_html=True)
+
 
     if mode == 'Personal':
         _render_personal(kpi_summary, selected_stage, theme, cfg)
@@ -187,6 +188,8 @@ def _render_personal(kpi_summary, selected_stage, theme, cfg):
         unsafe_allow_html=True
     )
 
+#==============professional=================================
+
 
 def _render_professional(kpi_summary, selected_stage, theme, cfg):
     dash_config = cfg['dashboard']
@@ -195,8 +198,15 @@ def _render_professional(kpi_summary, selected_stage, theme, cfg):
     takeaway = cfg['takeaway']
     professional_theme = dash_config['themes']['professional']
 
-    st.caption("Base: valid plays.")
+    st.markdown(
+        "<div class='ui-subtitle'>"
+        "Listener overview — key indices across sound, time, behavior, and collection."
+        "</div>",
+        unsafe_allow_html=True
+    )
 
+    st.caption("Base: valid plays.")
+    st.markdown("---")
     period_accent_map = {
         'global': professional_theme.get('accent_blue', professional_theme['accent_blue']),
         'recent_6q': professional_theme.get('accent_cyan', professional_theme['accent_blue']),
@@ -224,66 +234,43 @@ def _render_professional(kpi_summary, selected_stage, theme, cfg):
         color_key_ov = dash_config['profile_colors'].get(profile_ov['id'], 'accent_blue')
         profile_color_ov = theme.get(color_key_ov, theme['accent_blue'])
 
-    hero_row = kpi_ov[
-        (kpi_ov['index_name'] == 'Hipster Index') &
-        (kpi_ov['stage'] == selected_stage)
-    ]
-    hero_val = hero_row.iloc[0]['value'] if not hero_row.empty else None
 
-    col_hero, col_profile = st.columns([1, 2])
+    st.markdown(
+        "<div class='ui-section'>Listener profile</div>"
+        "<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
+        "Listener archetype based on four portrait axes — computed on the full history."        "</div>",
+        unsafe_allow_html=True
+    )
 
-    with col_hero:
+    if profile_ov and portrait_idx_ov is not None:
+        levels_str = ' · '.join(
+            f"{a} {portrait_idx_ov.loc[a, 'level']}"
+            for a in axes_ov
+        )
         st.markdown(
-            f"<div style='font-size:0.9rem; opacity:0.65; "
-            f"color:{theme['text']}; margin-bottom:4px'>Hipster Index</div>"
-            f"<div style='font-size:3.4rem; font-weight:900; "
-            f"color:{theme['accent_pink']}; line-height:1; "
-            f"margin-bottom:8px'>"
-            f"{hero_val:.2f}</div>"
-            f"<div style='font-size:0.85rem; opacity:0.6; "
-            f"color:{theme['text']}'>How far from mainstream</div>",
+            f"<div style='font-size:2.2rem; font-weight:900; "
+            f"color:{profile_color_ov}; line-height:1.15; margin-bottom:8px'>"
+            f"{profile_ov['name_en']}</div>"
+            f"<div style='font-size:1rem; color:{theme['text']}; opacity:0.8; "
+            f"line-height:1.4; margin-bottom:6px'>{levels_str}</div>"
+            f"<div style='font-size:0.85rem; opacity:0.55; "
+            f"color:{theme['text']}'>"
+            f"Match distance: {match_dist_ov:.2f} · computed on full history</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            f"<div style='font-size:1.05rem; color:{theme['text']}; "
+            f"opacity:0.75; line-height:1.4'>No profile data available.</div>",
             unsafe_allow_html=True
         )
 
-    with col_profile:
-        if profile_ov and portrait_idx_ov is not None:
-            levels_str = ' · '.join(
-                f"{a} {portrait_idx_ov.loc[a, 'level']}"
-                for a in axes_ov
-            )
-            st.markdown(
-                f"<div style='font-size:0.9rem; opacity:0.65; "
-                f"color:{theme['text']}; margin-bottom:4px'>Listener profile</div>"
-                f"<div style='font-size:1.6rem; font-weight:700; "
-                f"color:{profile_color_ov}; line-height:1.2; margin-bottom:6px'>"
-                f"{profile_ov['name_en']}</div>"
-                f"<div style='font-size:0.95rem; color:{theme['text']}; opacity:0.75; "
-                f"line-height:1.4'>{levels_str}</div>"
-                f"<div style='font-size:0.85rem; opacity:0.5; "
-                f"color:{theme['text']}; margin-top:6px'>"
-                f"Match distance: {match_dist_ov:.2f} · computed on full history"
-                f"</div>",
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(
-                f"<div style='font-size:0.9rem; opacity:0.65; "
-                f"color:{theme['text']}; margin-bottom:4px'>Listener profile</div>"
-                f"<div style='font-size:1.05rem; color:{theme['text']}; "
-                f"opacity:0.75; line-height:1.4'>"
-                f"No profile data available.</div>",
-                unsafe_allow_html=True
-            )
+
+
+
 
     st.markdown("---")
 
-    st.markdown(
-        "<div class='ui-section'>Key takeaways</div>"
-        "<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
-        "Recommendations derived from the listener archetype (full history)."
-        "</div>",
-        unsafe_allow_html=True
-    )
 
     takeaways_ov = []
     if portrait_idx_ov is not None:
@@ -297,13 +284,31 @@ def _render_professional(kpi_summary, selected_stage, theme, cfg):
                     takeaways_ov.append(t)
 
     if takeaways_ov:
+        bg_color = 'rgba(0, 0, 0, 0.04)'
+        bullets_html = (
+            f"<div style='background:{bg_color}; "
+            f"border-radius:10px; padding:20px 24px; "
+            f"border-left:3px solid {profile_color_ov}'>"
+            f"<div class='ui-section' style='margin-top:0'>Key takeaways</div>"
+            f"<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
+            f"Recommendations derived from the listener archetype (full history)."
+            f"</div>"
+        )
         for t in takeaways_ov:
-            st.markdown(
+            bullets_html += (
                 f"<div style='font-size:1rem; color:{profile_color_ov}; "
-                f"line-height:1.5; margin-bottom:8px'>— {t}</div>",
-                unsafe_allow_html=True
+                f"line-height:1.5; margin-bottom:8px'>— {t}</div>"
             )
+        bullets_html += "</div>"
+        st.markdown(bullets_html, unsafe_allow_html=True)
     else:
+        st.markdown(
+            "<div class='ui-section'>Key takeaways</div>"
+            "<div class='ui-subtitle' style='margin-top:-8px; margin-bottom:16px'>"
+            "Recommendations derived from the listener archetype (full history)."
+            "</div>",
+            unsafe_allow_html=True
+        )
         st.caption("No takeaways available.")
 
     st.markdown("---")

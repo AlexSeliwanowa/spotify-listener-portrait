@@ -555,14 +555,24 @@ def _render_personal(sound_core, sound_core_global, cluster_stats, cluster_order
     )
 
 
+#==============professional=================================
+
 def _render_professional(sound_core, cluster_order, clusters, cluster_names,
                          kpi_summary, selected_stage, theme, cfg):
     dash_config = cfg['dashboard']
     professional_theme = dash_config['themes']['professional']
 
 
-    st.caption("Base: my_music ∩ valid plays. Only saved tracks.")
+    st.markdown(
+        "<div class='ui-subtitle'>"
+        "Sound profile metrics — audio-feature clusters, signature tracks, "
+        "and how the taste core shifts across windows."
+        "</div>",
+        unsafe_allow_html=True
+    )
 
+    st.caption("Base: valid plays; audio features from Exportify.")
+    st.markdown("---")
 
     cluster_color_config = dash_config.get('cluster_colors', {}).get('professional', {})
     cluster_color_map = {

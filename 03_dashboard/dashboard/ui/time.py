@@ -349,6 +349,8 @@ def _render_professional(time_global, time_changepoints, time_storms, time_meta,
 
     st.caption("Base: valid plays; `skip_rate` — all events.")
 
+    st.markdown("---")
+
     if time_meta is not None and not time_meta.empty:
         meta_row = time_meta.iloc[0]
         if bool(meta_row['has_mid_history_gaps']):
@@ -379,7 +381,8 @@ def _render_professional(time_global, time_changepoints, time_storms, time_meta,
         'desktop_share': 'Platform (Desktop Share)',
         'completion_rate': 'Completion Rate',
     }
-
+    
+    default_visible = ['discovery_rate', 'skip_rate']
     fig_pro = go.Figure()
     for metric, color in pro_metric_colors.items():
         fig_pro.add_trace(go.Scatter(
@@ -389,6 +392,7 @@ def _render_professional(time_global, time_changepoints, time_storms, time_meta,
             name=pro_metric_labels[metric],
             line=dict(color=color, width=2),
             opacity=0.7,
+            visible=True if metric in default_visible else 'legendonly',
             customdata=time_global[[metric]],
             hovertemplate=f'{pro_metric_labels[metric]}: %{{customdata[0]:.2f}}<extra></extra>',
         ))
@@ -765,6 +769,7 @@ def _render_professional(time_global, time_changepoints, time_storms, time_meta,
                 f"Grey band: null range ({null_low:.3f}–{null_high:.3f}). "
                 f"Shaded areas: epochs of high variability."
             )
+            st.markdown("---")
 
             if feat_contrib is not None and not feat_contrib.empty:
                 st.markdown(
