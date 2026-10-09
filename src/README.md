@@ -3,7 +3,7 @@
 Модули для обработки событий Spotify, построения поведенческих метрик
 и сборки паркетов дашборда.
 
-Используется в prep-ноутбуке (`notebooks/dashboard_data_prep.ipynb`).
+Используется в prep-ноутбуке (`03_dashboard/dashboard_data_prep.ipynb`).
 Каждая ячейка вызывает функции отсюда, сама ничего не считает.
 
 
@@ -40,13 +40,14 @@ src/
 │
 ├── paths.py                      инфраструктура: пути, папки
 ├── loaders.py                    инфраструктура: загрузка parquet
+├── mask.py                       инфраструктура: маскирование личных данных
 │
 ├── helpers.py                    чистые утилиты без домена
 ├── temporal.py                   окна и обрезка холодного старта
 ├── bases.py                      срезы df (all / valid / trimmed / …)
 ├── enrich.py                     добавление колонок в df
 ├── diagnostics.py                SNR, permutation (для исследований)
-├── indices.py                    ~40 индексов + оркестратор kpi_summary
+├── indices.py                    ~35 индексов + оркестратор kpi_summary
 ├── portrait.py                   компас: Discovery, Retention, Burnout
 ├── variability_export.py         экспорт Variability в parquet
 │
@@ -87,8 +88,14 @@ src/
    ▲
 1. Enrich              добавление колонок (valid_play, my_music, …)
    ▲
-0. Infrastructure      пути, загрузка (без работы с данными)
+0. Infrastructure      пути, загрузка, маскирование (без работы с данными)
 ```
+
+**Маскирование — вне слоёв.** `mask.py` вызывается в самом конце
+prep-ноутбука, перед записью паркетов в публичную папку `datasets/`.
+Это не часть пайплайна расчётов — это отдельный проход по финальным
+агрегатам. Читает `scripts/mask_config.json` (локальный, не в git),
+заменяет реальные идентификаторы на маски.
 
 
 ## Модули
@@ -96,13 +103,24 @@ src/
 ### Infrastructure
 
 **`paths.py`** — пути и папки.
-- `get_base_path()` — корень данных
-- `get_dashboard_path()` — куда писать паркеты
+- `get_project_root()` — корень репозитория
+- `get_base_path()` — корень данных `data/00_output/`
+- `get_dashboard_path()` — приватные паркеты `data/00_output/dashboard/`
+- `get_datasets_path()` — публичные паркеты `03_dashboard/dashboard/datasets/`
+- `get_public_dashboard_path()` — корень `03_dashboard/dashboard/`
 - `get_config_path()` — конфиги дашборда
-- `ensure_dashboard_subdirs()` — создаёт `sound/`, `time/`, `behavior/`, `collection/`
+- `ensure_dashboard_subdirs()` — создаёт `sound/`, `time/`, `behavior/`, `collection/` в приватной папке
+- `ensure_datasets_subdirs()` — то же в публичной папке
+- `get_references_path()`, `get_genre_mapping_path()` — справочники
 
 **`loaders.py`** — загрузка.
 - `load_all(base_path)` — возвращает dict с `df`, `tracks_exportify`, `playlist_links`, `library_tracks`, `owner_ids`, `playlists_metadata`.
+
+**`mask.py`** — маскирование личных данных.
+- `mask_all(**dfs)` — принимает датафреймы по именам, возвращает маскированные.
+- Работает в памяти: получает и возвращает датафреймы, ничего не пишет.
+- Читает `scripts/mask_config.json` (в `.gitignore`). Без конфига — предупреждение и возврат как есть.
+- Маскирует: `account`, `owner_id`, `display_name`, `email`, `Added By`, `collaborators`, `playlist_name`, `name_norm`, `added_by_id`.
 
 
 ### Primitives
@@ -138,8 +156,8 @@ src/
 - `snr_gain_permutation(series, n_perm=200, …)` — permutation-тест
 
 **`indices.py`** — индексы метрик.
-- ~40 публичных функций: `hipster_index`, `genre_diversity_index`, `music_day_share`, `skip_risk_index`, `session_depth_index`, …
-- Оркестратор `build_kpi_summary(df, windows, tracks_exportify, playlist_links)` — собирает всё в DataFrame (106 строк: ~40 индексов × 3 окна)
+- ~35 публичных функций: `hipster_index`, `genre_diversity_index`, `music_day_share`, `skip_risk_index`, `session_depth_index`, …
+- Оркестратор `build_kpi_summary(df, windows, tracks_exportify, playlist_links)` — собирает всё в DataFrame (106 строк: ~35 индексов × 3 окна)
 - `INDEX_SPECS` — метаданные индексов (unit / category / audience)
 
 **`portrait.py`** — компас. Три публичные функции + два оркестратора.
@@ -211,7 +229,9 @@ src/
 - Константа `MIN_TRANSITIONS_FOR_VARIABILITY = 24`
 
 **`detectors/variability_toolkit.py`** — универсальный toolkit.
-- `VariabilityAnalyzer` — класс с методами `fit`, `variability_score`, `check_stability`, `feature_contributions`
+- `VariabilityAnalyzer` — класс с методами `fit`, `variability_score`, `check_stability`, `feature_contributions`.
+- Обобщённый инструмент, не привязанный к Spotify. Кандидат на вынос
+  в отдельный репозиторий `variability-toolkit` — решение пока не принято.
 
 **`detectors/changepoints.py`** — оркестратор.
 - `build(df, output_path)` — вызывает 4 детектора, собирает `time_changepoints.parquet` + `time_storms.parquet`
@@ -255,8 +275,8 @@ PELT-точки фильтруются по bootstrap ≥ 0.10 (drop 15% мес�
 ## Что НЕ в src/
 
 Всё, что используется только один раз, остаётся **inline в ноутбуке**:
-- Behavior-специфика: воронка, скипы, когорты (Cell 8–10)
-- Collection-специфика: портреты, collab, fill (Cell 11–12)
+- Behavior-специфика: воронка, скипы, когорты
+- Collection-специфика: портреты, collab, fill
 - Разовые исследования в отдельных ноутбуках (backbtn, immediate saves, dynamic save status)
 
 **Правило:** второй потребитель → переезд в `src/`. До этого — inline.
@@ -264,6 +284,15 @@ PELT-точки фильтруются по bootstrap ≥ 0.10 (drop 15% мес�
 
 ## Кто что использует
 
-- **Prep-ноутбук (Cell 0–13)** — оркестратор. Импортирует всё, что нужно, вызывает в нужном порядке, сохраняет паркеты.
-- **Отдельные ноутбуки исследований** (`07_eda_behavioral` и др.) — импортируют `enrich`, `bases`, `temporal`, `diagnostics`. Не дублируют логику.
-- **Дашборд (`app.py`)** — читает паркеты, не работает с `src/` напрямую.
+- **Prep-ноутбук** (`03_dashboard/dashboard_data_prep.ipynb`) — оркестратор.
+  Импортирует всё, что нужно, вызывает в нужном порядке, сохраняет паркеты.
+  На выходе — `mask_all` для четырёх паркетов с личными данными.
+- **Отдельные ноутбуки исследований** (`01_eda_basic`, `02_eda_temporal`,
+  `03_eda_behavioral`, `04_eda_playlists`) — берут `get_base_path` из `paths`.
+  Только `04_eda_playlists` дополнительно вызывает `mask_all` в блоке 0.
+  Логику анализа не дублируют — она inline в ноутбуках.
+- **Dashboard** (`03_dashboard/dashboard/app.py`) — читает только `datasets/`,
+  не работает с `src/` напрямую.
+- **`scripts/mask_config.json`** — читается из `src/mask.py`, в git не попадает.
+
+
