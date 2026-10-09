@@ -18,6 +18,7 @@ config_private.ipynb
 !/data/.gitkeep
 01_data_analysis/00_prep/spotify_credentials.json
 .spotify_cache
+tree.md
 
 # Local masking (private)
 scripts/mask_data.py
