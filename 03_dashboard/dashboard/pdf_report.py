@@ -172,7 +172,7 @@ def build_overview_personal_pdf(
                                level_colors, level_radius, profile_color,
                                bg_color=bg_color, text_color=text_color)
             els.append(Spacer(1, 8))
-            els.append(Image(BytesIO(png), width=12 * cm, height=8.5 * cm))
+            els.append(Image(BytesIO(png), width=11 * cm, height=11 * cm))
         except Exception as e:
             els.append(Paragraph(f'[compass unavailable: {e}]', s_caption))
 
