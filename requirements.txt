@@ -5,4 +5,4 @@ pyarrow
 plotly
 scipy
 reportlab
-kaleido==0.2.1
+matplotlib

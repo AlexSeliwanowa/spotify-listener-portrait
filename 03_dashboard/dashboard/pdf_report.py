@@ -1,13 +1,16 @@
 """PDF-отчёт для Personal-режима дашборда.
 Собирает Overview/Personal в чистый PDF (не скриншот).
-Зависимости: reportlab, kaleido.
+Зависимости: reportlab, matplotlib.
 """
 import pandas as pd
 import numpy as np
 from io import BytesIO
 from datetime import date
 
-import plotly.graph_objects as go
+import matplotlib
+matplotlib.use('Agg')  # headless, для сервера без GUI
+import matplotlib.pyplot as plt
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.lib import colors as rl_colors
@@ -40,42 +43,43 @@ def _level(value, thresholds):
 
 def _compass_png(portrait_idx, axes, user_levels, level_colors, level_radius,
                  profile_color_hex, bg_color='#0F0C1B', text_color='#E0E0FF'):
+    """Компас через matplotlib — без kaleido и Chrome."""
     angle_map = {'Discovery': 90, 'Variability': 0, 'Retention': 270, 'Burnout': 180}
-    theta = [angle_map[a] for a in axes]
-    r = [level_radius[l.lower()] for l in user_levels]
-    cols = [level_colors[l.lower()] for l in user_levels]
+    thetas_rad = [np.deg2rad(angle_map[a]) for a in axes]
+    r_vals = [level_radius[l.lower()] for l in user_levels]
+    bar_colors = [level_colors[l.lower()] for l in user_levels]
 
-    fig = go.Figure()
-    fig.add_trace(go.Barpolar(
-        r=[1.10] * 4, theta=[45, 135, 225, 315], width=[90] * 4,
-        marker_color='#E0E0FF', marker_line_width=0,
-        hoverinfo='skip', showlegend=False,
-    ))
-    fig.add_trace(go.Barpolar(
-        r=r, theta=theta, width=[80] * 4,
-        marker_color=cols, hoverinfo='skip', showlegend=False,
-    ))
-    circle_theta = np.linspace(0, 360, 200).tolist()
-    fig.add_trace(go.Scatterpolar(
-        r=[1.28] * 200, theta=circle_theta, mode='lines',
-        line=dict(color=profile_color_hex, width=2),
-        hoverinfo='skip', showlegend=False,
-    ))
-    fig.update_layout(
-        height=400, margin=dict(t=20, b=20, l=20, r=20),
-        paper_bgcolor=bg_color,
-        polar=dict(
-            bgcolor=bg_color,
-            radialaxis=dict(visible=False, range=[0, 1.4]),
-            angularaxis=dict(
-                tickvals=theta, ticktext=axes,
-                showgrid=False, showline=False,
-                tickfont=dict(color=text_color, size=13),
-            ),
-        ),
-        showlegend=False,
-    )
-    return fig.to_image(format='png', width=700, height=500, scale=2)
+    fig = plt.figure(figsize=(7, 5), dpi=200)
+    fig.patch.set_facecolor(bg_color)
+    ax = fig.add_subplot(111, projection='polar')
+    ax.set_facecolor(bg_color)
+
+    # Фоновые серые секторы по 90°, r = 1.10
+    for theta_center_deg in [45, 135, 225, 315]:
+        ax.bar(np.deg2rad(theta_center_deg), 1.10, width=np.deg2rad(90),
+               bottom=0, color='#E0E0FF', alpha=0.08, edgecolor='none')
+
+    # Основные бары — по осям
+    for t, h, c in zip(thetas_rad, r_vals, bar_colors):
+        ax.bar(t, h, width=np.deg2rad(80), bottom=0, color=c, edgecolor='none')
+
+    # Внешний круг цветом профиля
+    circle = np.linspace(0, 2 * np.pi, 200)
+    ax.plot(circle, [1.28] * 200, color=profile_color_hex, linewidth=1.5)
+
+    # Настройки осей
+    ax.set_ylim(0, 1.4)
+    ax.set_xticks(thetas_rad)
+    ax.set_xticklabels(axes, color=text_color, fontsize=11)
+    ax.set_yticks([])
+    ax.grid(False)
+    ax.spines['polar'].set_visible(False)
+
+    buf = BytesIO()
+    fig.tight_layout()
+    fig.savefig(buf, format='png', facecolor=bg_color, bbox_inches='tight')
+    plt.close(fig)
+    return buf.getvalue()
 
 
 def build_overview_personal_pdf(
