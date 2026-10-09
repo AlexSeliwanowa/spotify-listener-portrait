@@ -16,6 +16,8 @@ config_private.ipynb
 # Приватные данные — только корневая data/
 /data/
 !/data/.gitkeep
+01_data_analysis/00_prep/spotify_credentials.json
+.spotify_cache
 
 # Local masking (private)
 scripts/mask_data.py
