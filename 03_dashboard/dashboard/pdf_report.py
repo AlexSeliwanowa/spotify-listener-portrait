@@ -45,39 +45,67 @@ def _compass_png(portrait_idx, axes, user_levels, level_colors, level_radius,
                  profile_color_hex, bg_color='#0F0C1B', text_color='#E0E0FF'):
     """Компас через matplotlib — без kaleido и Chrome."""
     angle_map = {'Discovery': 90, 'Variability': 0, 'Retention': 270, 'Burnout': 180}
-    thetas_rad = [np.deg2rad(angle_map[a]) for a in axes]
-    r_vals = [level_radius[l.lower()] for l in user_levels]
-    bar_colors = [level_colors[l.lower()] for l in user_levels]
 
-    fig = plt.figure(figsize=(7, 5), dpi=200)
+    fig = plt.figure(figsize=(6, 6), dpi=150)
     fig.patch.set_facecolor(bg_color)
     ax = fig.add_subplot(111, projection='polar')
     ax.set_facecolor(bg_color)
 
-    # Фоновые серые секторы по 90°, r = 1.10
-    for theta_center_deg in [45, 135, 225, 315]:
-        ax.bar(np.deg2rad(theta_center_deg), 1.10, width=np.deg2rad(90),
-               bottom=0, color='#E0E0FF', alpha=0.08, edgecolor='none')
+    # Убираем стандартные сетки и рамки
+    ax.grid(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['polar'].set_visible(False)
 
-    # Основные бары — по осям
-    for t, h, c in zip(thetas_rad, r_vals, bar_colors):
-        ax.bar(t, h, width=np.deg2rad(80), bottom=0, color=c, edgecolor='none')
+    # Радиальные деления — тонкие круги
+    for r in [0.70, 0.85, 1.00]:
+        circle = np.linspace(0, 2 * np.pi, 200)
+        ax.plot(circle, [r] * 200, color=text_color, alpha=0.08,
+                linewidth=0.7, zorder=1)
 
-    # Внешний круг цветом профиля
-    circle = np.linspace(0, 2 * np.pi, 200)
-    ax.plot(circle, [1.28] * 200, color=profile_color_hex, linewidth=1.5)
+    # Фоновые «секторы» — очень слабые
+    for center_deg in [45, 135, 225, 315]:
+        center = np.deg2rad(center_deg)
+        ax.bar(center, 1.08, width=np.deg2rad(90), bottom=0,
+               color='#E0E0FF', alpha=0.04, edgecolor='none', zorder=1)
+
+    # Основные бары — с зазором и тенью
+    half_width = np.deg2rad(36)   # 72° ширины, 18° зазор между секторами
+
+    for axis_name in axes:
+        angle = np.deg2rad(angle_map[axis_name])
+        idx = axes.index(axis_name)
+        lvl = user_levels[idx].lower()
+        r = level_radius.get(lvl, 0.6)
+        color = level_colors.get(lvl, '#666666')
+
+        # Тень под баром (чуть глубже)
+        ax.bar(angle, 1.06, width=2 * half_width, bottom=0,
+               color='#000000', alpha=0.35, edgecolor='none', zorder=2)
+
+        # Сам бар
+        ax.bar(angle, r, width=2 * half_width, bottom=0,
+               color=color, edgecolor='none', zorder=3)
+
+    # Внешний круг — цвет профиля
+    circle = np.linspace(0, 2 * np.pi, 300)
+    ax.plot(circle, [1.28] * 300, color=profile_color_hex,
+            linewidth=1.8, zorder=4)
+
+    # Тонкая внутренняя окружность
+    ax.plot(circle, [0.05] * 300, color=text_color,
+            alpha=0.15, linewidth=0.7, zorder=4)
 
     # Настройки осей
-    ax.set_ylim(0, 1.4)
-    ax.set_xticks(thetas_rad)
+    ax.set_ylim(0, 1.42)
+    ax.set_xticks([np.deg2rad(angle_map[a]) for a in axes])
     ax.set_xticklabels(axes, color=text_color, fontsize=11)
-    ax.set_yticks([])
-    ax.grid(False)
-    ax.spines['polar'].set_visible(False)
+    ax.tick_params(axis='x', pad=14)
 
     buf = BytesIO()
     fig.tight_layout()
-    fig.savefig(buf, format='png', facecolor=bg_color, bbox_inches='tight')
+    fig.savefig(buf, format='png', facecolor=bg_color,
+                bbox_inches='tight', dpi=150)
     plt.close(fig)
     return buf.getvalue()
 
