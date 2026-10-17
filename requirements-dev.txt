@@ -1,5 +1,11 @@
-jupyter
+pandas
+numpy
+pyarrow
+plotly
+scipy
 matplotlib
+
+jupyter
 seaborn
 scikit-learn
 ruptures

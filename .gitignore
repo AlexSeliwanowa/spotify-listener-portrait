@@ -19,6 +19,7 @@ config_private.ipynb
 01_data_analysis/00_prep/spotify_credentials.json
 .spotify_cache
 tree.md
+CHANGELOG.md
 
 # Старый версии файлов
 OLD/
