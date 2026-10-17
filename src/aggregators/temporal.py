@@ -61,7 +61,7 @@ def build_time_series(df_input: pd.DataFrame,
         is_complete = days_in_last_week >= 7
 
     if not is_complete:
-        print(f"⚠️ Исключаем неполный период {last_period} из {window_label}")
+        print(f"⚠️ Skipping incomplete period {last_period} in {window_label}")
         df_window = df_window[df_window['period'] < last_period]
 
     rows = []
@@ -89,7 +89,7 @@ def build_time_series(df_input: pd.DataFrame,
         })
 
     if not rows:
-        print(f"⚠️ {window_label}: нет данных")
+        print(f"⚠️ {window_label}: no data")
         return pd.DataFrame()
 
     time_df = pd.DataFrame(rows).sort_values('date').reset_index(drop=True)

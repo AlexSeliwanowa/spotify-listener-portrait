@@ -2,6 +2,13 @@
 
 Variability НЕ считается здесь. Приходит в build() готовым числом.
 
+Burnout и Variability в стадии recent_6q намеренно равны значению global:
+обе оси отражают всю историю (в дашборде это сказано пользователю,
+ui/behavior.py). Текущая Variability (последнее окно rolling-12) лежит
+отдельно: variability_meta.parquet['current_score'], панель Time.
+Behavior Variability в компас не входит: после детренда она связана
+с Burnout (r ≈ -0.76), см. 02_methodology, фазы 9-10.
+
 Публичные функции осей — чтобы kpi_summary мог забрать значения
 в свой паркет. Компас и kpi_summary — два независимых потребителя.
 

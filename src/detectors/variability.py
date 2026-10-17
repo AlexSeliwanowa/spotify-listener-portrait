@@ -6,20 +6,20 @@
 
 Level считается в дашборде по порогам из indices_display.json.
 
-Требует ≥ 18 полных transitions (MIN_TRANSITIONS_FOR_VARIABILITY).
+Требует ≥ 24 полных transitions (MIN_TRANSITIONS_FOR_VARIABILITY).
 Иначе — short_history=True, метрики не считаются.
 
 Что изменилось
 1. Константа MIN_TRANSITIONS_FOR_VARIABILITY = 24.
 
 2. Проверка после fit.
-Если n_transitions < 18 → возвращает short_history=True, все метрики None, epochs пустой.
+Если n_transitions < 24 → возвращает short_history=True, все метрики None, epochs пустой.
 
 3. variability_score с min_periods=window.
 Полное окно. Эпохи сравнимы. Убирает артефакты коротких окон.
 
 4. n_transitions в возврате.
-Дашборд может показать «у тебя X месяцев, нужно 18».
+Дашборд может показать «у тебя X месяцев, нужно 24».
 
 5. short_history в возврате.
 Флаг для дашборда.
@@ -93,6 +93,16 @@ def run_variability_pipeline(df: pd.DataFrame,
     """
     df: event-level, одна строка на событие, колонка 'month' (Period).
     monthly_sound: если None — строится из df.
+    
+        Возвращает dict. Ключевые поля:
+      - lifetime_score   — медиана rolling-12
+      - current_score    — последняя точка rolling-12
+      - null_low/high    — границы permutation-null
+      - epochs, transitions, feature_contributions
+
+    # current_score — последнее значение rolling-12 (последние 12 мес).
+    # Показывается в панели Variability на вкладке Time; в компасе
+    # (portrait.parquet) не используется: там Variability = lifetime.
     """
     df = df.copy()
     if 'period' not in df.columns:
