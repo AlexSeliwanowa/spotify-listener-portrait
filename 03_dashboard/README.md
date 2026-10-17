@@ -1,150 +1,151 @@
+🇬🇧 English | [🇷🇺 Русский](./README_ru.md)
+
 # 03_dashboard
 
-**Живая версия:** https://spotify-listener-portrait-a3resx9aolc4svjcpegwhq.streamlit.app/
+**Live version:** https://spotify-listener-portrait-a3resx9aolc4svjcpegwhq.streamlit.app/
 
-Финальный слой проекта: превращает паркеты из `00_prep` в 31 агрегат, готовый для отображения в Streamlit-дашборде.
+The final layer of the project: turns parquet files from `00_prep` into 31 aggregates ready for display in the Streamlit dashboard.
 
-## Структура
+## Structure
 
 ```
 03_dashboard/
-├── dashboard_data_prep.ipynb   считает 30 агрегатов, маскирует, копирует в datasets/
-├── dashboard/                  сам дашборд (Streamlit)
-│   ├── app.py                  точка входа
-│   ├── config/                 JSON-конфиги: темы, пороги, тексты, архетипы
-│   ├── data/                   Python-модули загрузки паркетов
-│   ├── logic/                  логика отрисовки и форматирования
-│   ├── ui/                     пять вкладок (sound, time, behavior, collection, overview)
-│   ├── tests/                  smoke-тесты
-│   └── datasets/               31 паркет — в git, маскированные
+├── dashboard_data_prep.ipynb   calculates 30 aggregates, masks, copies to datasets/
+├── dashboard/                  the dashboard itself (Streamlit)
+│   ├── app.py                  entry point
+│   ├── config/                 JSON configs: themes, thresholds, texts, archetypes
+│   ├── data/                   Python modules for loading parquets
+│   ├── logic/                  rendering and formatting logic
+│   ├── ui/                     five tabs (sound, time, behavior, collection, overview)
+│   ├── tests/                  smoke tests
+│   └── datasets/               31 parquets — in git; four contain masked personal identifiers, the rest have none
 └── README.md
 ```
 
-## Как это работает целиком
+## How it works end-to-end
 
-Три слоя:
+Three layers:
 
-**1. `01_data_analysis/00_prep/`** — собирает из сырых выгрузок Spotify 15 паркетов в `data/00_output/`. История, фичи, плейлисты, библиотека, владельцы.
+**1. `01_data_analysis/00_prep/`** — builds 15 parquet files from raw Spotify exports into `data/00_output/`. History, features, playlists, library, owners.
 
-**2. `dashboard_data_prep.ipynb`** — читает 6 из этих паркетов, считает 30 агрегатов. Пишет приватно в `data/00_output/dashboard/`, потом маскирует и копирует в `dashboard/datasets/` (31 паркет).
+**2. `dashboard_data_prep.ipynb`** — reads 6 of these parquets, calculates 30 aggregates. Writes privately to `data/00_output/dashboard/`, then masks and copies to `dashboard/datasets/` (31 parquets).
 
-**3. `dashboard/app.py`** — читает **только** `dashboard/datasets/`. Никаких обращений к `data/`, к `src/`, к сырым выгрузкам.
+**3. In `datasets/` only personal identifiers are masked (email, account IDs, personal playlist names), in four parquets. The remaining parquets contain no identifiers. Before writing to `datasets/`, these four are passed through `src/mask.py`:
 
 ```
-data/00_output/*.parquet   (15 файлов)
+data/00_output/*.parquet   (15 files)
         │
         ↓
 dashboard_data_prep.ipynb
-   ├─ читает 6 паркетов
-   ├─ считает 30 агрегатов → data/00_output/dashboard/
-   ├─ маскирует 4 паркета через src/mask.py
-   └─ копирует в dashboard/datasets/  (31 паркет)
+   ├─ reads 6 parquets
+   ├─ calculates 30 aggregates → data/00_output/dashboard/
+   ├─ masks 4 parquets via src/mask.py
+   └─ copies to dashboard/datasets/  (31 parquets)
         │
         ↓
 dashboard/app.py  →  streamlit run
 ```
 
-## Преп-ноутбук `dashboard_data_prep.ipynb`
+## Prep notebook `dashboard_data_prep.ipynb`
 
-**Что делает по ячейкам:**
+**What it does by cells:**
 
-- **Ячейка 0–1.** Импорты из `src/` (агрегаторы, детекторы, кластеризация, портрет, индексы, mask). Читает 6 паркетов: `eda_ready`, `tracks_exportify`, `playlist_links`, `library_tracks`, `owner_ids`, `playlists_metadata`. Прогоняет `enrich` (`valid_play`, `my_music`, `session_id`, `source`). Считает три окна: `global`, `recent_6q`, `last_90d`.
-- **Sound.** Отбор ядра вкуса (`valid ∩ my_music`), KMeans на 5 аудио-фичах, PCA. Обучение на global, применение к остальным окнам без переобучения.
-- **Time.** Временные ряды по трём окнам. 4 слоя точек разладки: PELT-A (звук), PELT-B (поведение), Cosine (артисты), Storm. Variability через permutation noise floor.
-- **Behavior.** Компас (4 оси × 2 стадии). Обсессии, воронки, скипы, когорты. 8 поведенческих индексов.
-- **Collection.** Автопортреты плейлистов, участники коллабораций, типы наполнения, активность.
-- **KPI.** `build_kpi_summary` из `src/indices.py` — ~35 индексов × 3 окна = 106 строк.
-- **`eda_enriched.parquet`.** Slim-копия обогащённого `df` — 32 колонки. Отдельный файл, чтобы `app.py` не пересчитывал enrich при каждом запуске.
-- **Проверка.** Сверяет все 30 паркетов: файл есть, колонки на месте, ключи уникальны.
-- **Маскирование и копирование.** 30 паркетов в `dashboard/datasets/` + `playlist_links.parquet` в корне. Маскирует 4 через `src/mask.py`.
+- **Cells 0–1.** Imports from `src/` (aggregators, detectors, clustering, portrait, indices, mask). Reads 6 parquets: `eda_ready`, `tracks_exportify`, `playlist_links`, `library_tracks`, `owner_ids`, `playlists_metadata`. Runs `enrich` (`valid_play`, `my_music`, `session_id`, `source`). Calculates three windows: `global`, `recent_6q`, `last_90d`.
+- **Sound.** Taste core selection (`valid ∩ my_music`), KMeans on 5 audio features, PCA. Trained on global, applied to other windows without retraining.
+- **Time.** Time series across three windows. 4 changepoint layers: PELT-A (sound), PELT-B (behavior), Cosine (artists), Storm. Variability via permutation noise floor.
+- **Behavior.** Compass (4 axes × 2 stages). Obsessions, funnels, skips, cohorts. 8 behavioral indices.
+- **Collection.** Playlist autoportraits, collaborators, fill types, activity.
+- **KPI.** `build_kpi_summary` from `src/indices.py` — ~35 indices, but not all are calculated for all windows: 39 (Lifetime) / 34 (Last 18 months) / 33 (Last 90 days) = 106 rows.
+- **`eda_enriched.parquet`.** Slim copy of enriched `df` — 32 columns. Separate file so `app.py` doesn't recalculate enrich on every run.
+- **Verification.** Checks all 30 parquets: file exists, columns present, keys unique.
+- **Masking and copying.** 30 parquets to `dashboard/datasets/` + `playlist_links.parquet` at root. Masks 4 via `src/mask.py`.
 
-**Когда запускать:** после `00_prep`, перед запуском дашборда. Один раз или заново, если данные в `00_output/` изменились.
+**When to run:** after `00_prep`, before launching the dashboard. Once, or again if data in `00_output/` changed.
 
-## Что попадает в `dashboard/datasets/`
+## What goes into `dashboard/datasets/`
 
-31 паркет: 30 агрегатов считает преп-ноут, 31 паркет уходит в datasets/ — разница в playlist_links.parquet.
+31 parquets: the prep notebook calculates 30 aggregates, 31 parquets go to datasets/ — the difference is `playlist_links.parquet`.
 
-| Где | Сколько | Что |
+| Location | Count | What |
 |---|---|---|
 | `sound/` | 4 | `sound_core_global / recent_6q / last_90d` + `sound_clustering_meta` |
 | `time/` | 10 | `time_series_*` ×3 + meta + changepoints + storms + variability + meta + contributions + epochs |
 | `behavior/` | 10 | portrait + obsessions ×4 + funnels ×2 + skip ×2 + cohorts |
 | `collection/` | 4 | portraits + collaborators + fill_summary + activity_scatter |
-| корень | 3 | `kpi_summary`, `eda_enriched`, `playlist_links` |
-| **Итого** | **31** | |
+| root | 3 | `kpi_summary`, `eda_enriched`, `playlist_links` |
+| **Total** | **31** | |
 
-Полное описание полей каждого паркета — в markdown-ячейках в конце `dashboard_data_prep.ipynb`.
+Full field-level description of each parquet — in markdown cells at the end of `dashboard_data_prep.ipynb`.
 
-## Маскирование
+## Masking
 
-Четыре паркета содержат реальные значения. Перед записью в `datasets/` прогоняются через `src/mask.py`:
+Four parquets contain real values. Before writing to `datasets/` they are passed through `src/mask.py`:
 
-| Паркет | Что маскируется |
+| Parquet | What is masked |
 |---|---|
 | `collection/playlist_portraits` | `playlist_name` |
 | `collection/playlist_collaborators` | `playlist_name`, `added_by_id`, `display_name` |
 | `collection/collection_activity_scatter` | `name_norm` |
 | `playlist_links.parquet` | `account`, `Added By`, `playlist_name`, `name_norm` |
 
-Правила: email → `1@mail.com` / `2@mail.com` / `3@mail.com`, owner_id → `account_N`, display_name → `Account N`, внешние Added By → `user_NN`, личные плейлисты → `personal_<тема>_<номер>`.
+Rules: email → `1@mail.com` / `2@mail.com` / `3@mail.com`, owner_id → `account_N`, display_name → `Account N`, external Added By → `user_NN`, personal playlists → `personal_<theme>_<number>`.
 
-Маппинг — в `scripts/mask_config.json`, локально, в `.gitignore`. Без него маскирование пропускается, prep-ноут предупреждает.
+Mapping — in `scripts/mask_config.json`, local, in `.gitignore`. Without it masking is skipped, prep notebook warns.
 
-## Дашборд
+## Dashboard
 
-**5 вкладок × 2 режима × 3 периода.**
+**5 tabs × 2 modes × 3 periods.**
 
-| Вкладка | Что показывает |
+| Tab | What it shows |
 |---|---|
-| **Sound** | Кластеры звука, scatter в PCA, signature tracks, топ-артисты, жанровые доньки |
-| **Time** | Временные ряды, changepoints, штормы, серая зона холодного старта, Variability |
-| **Behavior** | Компас (4 оси), обсессии, воронки, скипы, когорты |
-| **Collection** | Плейлисты, автопортреты, участники, типы наполнения |
-| **Overview** | Архетип, takeaways, snapshot индексов, biggest shift, полный справочник |
+| **Sound** | Sound clusters, scatter in PCA, signature tracks, top artists, genre donuts |
+| **Time** | Time series, changepoints, storms, gray cold-start zone, Variability |
+| **Behavior** | Compass (4 axes), obsessions, funnels, skips, cohorts |
+| **Collection** | Playlists, autoportraits, participants, fill types |
+| **Overview** | Archetype, takeaways, snapshot of indices, biggest shift, full reference |
 
 ## Personal / Professional
 
-Одни данные, две линзы.
+Same data, two lenses.
 
-**Personal** отвечает «кто я». Тёмная тема. Обращение на «ты». Архетип крупно, компас геометрией, обсессии — «треки, которые ты не мог перестать слушать». Без формул, без баз, без методологии. Карточки с именами (Niche, Genres, Skipper, Night Owl), не с индексами. Экспорт — PDF за Lifetime.
+**Personal** answers "who am I". Dark theme. Addresses the user as "you". Archetype large, compass geometry, obsessions — "tracks you couldn't stop listening to". No formulas, no bases, no methodology. Cards with names (Niche, Genres, Skipper, Night Owl), not indices. Export — PDF for Lifetime.
 
-**Professional** отвечает «что в данных». Светлая тема. Безлично. Caption с базой в каждой вкладке. ⓘ и формулы на карточках индексов. Плюс то, чего нет в Personal: воронки, когорты, skip/full play разрез, таблица changepoints, cluster summary, feature contributions. Экспорт — CSV всех индексов × 3 окна.
+**Professional** answers "what's in the data". Light theme. Impersonal. Caption with base in each tab. ⓘ and formulas on index cards. Plus what Personal lacks: funnels, cohorts, skip/full play split, changepoints table, cluster summary, feature contributions. Export — CSV of all indices × 3 windows.
 
-Это не «упрощённый / полный». Это два разных языка про одно и то же.
+This is not "simplified / full". These are two different languages about the same thing.
 
-**Периоды:** `Lifetime` (global), `Last 18 months` (recent_6q), `Last 90 days` (last_90d).
+**Periods:** `Lifetime` (global), `Last 18 months` (recent_6q), `Last 90 days` (last_90d).
 
-## Конфигурация
+## Configuration
 
-Пороги отображения, тексты, уровни — в `config/*.json`. Локальные константы логики — в `ui/*.py`.
+Display thresholds, texts, levels — in `config/*.json`. Local logic constants — in `ui/*.py`.
 
 **JSON:**
-- `indices_display.json` — пороги, полярность, `max_value`, тексты, формулы.
-- `profile_labels.json` — 7 архетипов с кодами.
-- `dashboard_config.json` — темы, цвета, `cluster_colors`, `profile_colors`, `typography`.
-- `product_takeaway.json` — рекомендации по осям.
-- `time_definitions.json` — определения для аннотаций Time.
+- `indices_display.json` — thresholds, polarity, `max_value`, texts, formulas.
+- `profile_labels.json` — 9 archetypes with codes.
+- `dashboard_config.json` — themes, colors, `cluster_colors`, `profile_colors`, `typography`.
+- `product_takeaway.json` — recommendations by axis.
+- `time_definitions.json` — definitions for Time annotations.
 
-**Захардкожено в UI** (осознанно): списки индексов вкладок (`TIME_INDICES`, `BEHAVIOR_INDICES`), порядок осей компаса (`axes_order`), числовые уровни (`level_num`), палитра жанров. Используются в одном месте, меняются редко.
+**Hardcoded in UI** (deliberately): index lists for tabs (`TIME_INDICES`, `BEHAVIOR_INDICES`), compass axes order (`axes_order`), numeric levels (`level_num`), genre palette. Used in one place, rarely changed.
 
-## Контракт данных
+## Data contract
 
-`data/schemas.py` — список обязательных колонок для каждого паркета. При загрузке `load_parquet` вызывает `validate()`. Если колонка пропала — красная плашка с указанием, что именно. Дашборд не падает молча.
+`data/schemas.py` — list of required columns for each parquet. On load, `load_parquet` calls `validate()`. If a column is missing — red banner indicating exactly what. The dashboard doesn't fail silently.
 
-## Тесты
+## Tests
 
-Из папки `dashboard/`:
+From the `dashboard/` folder:
 
 ```
 python -m pytest tests/ -v
 ```
 
-Smoke-тесты проверяют контракт данных, не логику: паркеты на месте, схемы совпадают, модули `ui/*` импортируются, `app.py` парсится.
+Smoke tests check the data contract, not logic: parquets in place, schemas match, `ui/*` modules import, `app.py` parses.
 
+## Launch
 
-## Запуск
-
-**Дашборд готов к запуску сразу после клонирования репозитория.** 31 паркет уже лежит в `dashboard/datasets/`, папка `data/` не нужна.
+**The dashboard is ready to run right after cloning the repository.** 31 parquets are already in `dashboard/datasets/`, no `data/` folder needed.
 
 ```
 git clone <repo-url>
@@ -153,43 +154,43 @@ pip install -r requirements.txt
 streamlit run 03_dashboard/dashboard/app.py
 ```
 
-Откроется на `http://localhost:8501`.
+Opens at `http://localhost:8501`.
 
-**Онлайн:** https://spotify-listener-portrait-a3resx9aolc4svjcpegwhq.streamlit.app/
+**Online:** https://spotify-listener-portrait-a3resx9aolc4svjcpegwhq.streamlit.app/
 
-### Если данные изменились
+### If data changed
 
-Полный путь:
+Full path:
 
-**1.** Прогнать `00_prep` — собрать 15 паркетов в `data/00_output/`.
+**1.** Run `00_prep` — build 15 parquets in `data/00_output/`.
 
-**2.** Прогнать преп-ноут:
+**2.** Run the prep notebook:
 ```
 jupyter notebook 03_dashboard/dashboard_data_prep.ipynb
 ```
-На выходе: 30 агрегатов в `data/00_output/dashboard/`, 31 паркет в `dashboard/datasets/`.
+Output: 30 aggregates in `data/00_output/dashboard/`, 31 parquets in `dashboard/datasets/`.
 
-**3.** Перезапустить дашборд:
+**3.** Restart the dashboard:
 ```
 streamlit run 03_dashboard/dashboard/app.py
 ```
 
-**На Streamlit Cloud** — деплой из GitHub, тот же `app.py`. Все паркеты уже в `datasets/`. После `git push` — **Reboot** приложения в панели управления.
+**On Streamlit Cloud** — deploy from GitHub, same `app.py`. All parquets are already in `datasets/`. After `git push` — **Reboot** the app in the control panel.
 
+## Limitations
 
-## Ограничения
+- **Streamlit version is pinned** in `requirements.txt` (`1.60.0`). Updating — together with checking custom CSS.
+- **The dashboard does not recalculate data.** Outdated parquet — will show outdated.
+- **Streamlit frontend bug** — when switching modes frequently, React may crash with `NotFoundError: removeChild`. Fixed with F5.
+- **Masking depends on `scripts/mask_config.json`**. Without it data goes to `datasets/` unmasked.
+- **PDF report** — compass is drawn via matplotlib, visually simpler than in Streamlit (plotly). Limitation known, not a priority.
+- **Variability label (Low / Medium / High) is relative to the profile** and is not comparable between users. In the dashboard it is used as an indicator within a user's history, not an absolute scale.
+- **Rerun on your own data has not been tested.** The prep notebook can be run on your own Spotify export after `00_prep`, but thresholds (KMeans silhouette, stability 0.10, practical p75) are calibrated on the current data and may need revision. The output schema (`data/schemas.py`) transfers; the numbers do not.
 
-- **Версия Streamlit зафиксирована** в `requirements.txt` (`1.60.0`). Обновлять — вместе с проверкой кастомного CSS.
-- **Дашборд не пересчитывает данные.** Устарел паркет — покажет устаревшее.
-- **Фронтовый баг Streamlit** — при частом переключении режимов React может упасть с `NotFoundError: removeChild`. Лечится F5.
-- **Маскирование зависит от `scripts/mask_config.json`**. Без него данные идут в `datasets/` без маски.
-- **PDF-отчёт** — компас рисуется через matplotlib, визуально проще, чем в Streamlit (plotly). Ограничение известно, в приоритетах не стоит.
+## See also
 
-
-## См. также
-
-- [Корневой README](../README.md) — обзор проекта
-- [01_data_analysis](../01_data_analysis/README.md) — EDA и сборка данных
-- [00_prep](../01_data_analysis/00_prep/README.md) — сборка паркетов
-- [02_methodology](../02_methodology/README.md) — исследование Time Detector
-- [src](../src/README.md) — архитектура пайплайна
+- [Root README](../README.md) — project overview
+- [01_data_analysis](../01_data_analysis/README.md) — EDA and data assembly
+- [00_prep](../01_data_analysis/00_prep/README.md) — parquet assembly
+- [02_methodology](../02_methodology/README.md) — Time Detector study
+- [src](../src/README.md) — pipeline architecture
