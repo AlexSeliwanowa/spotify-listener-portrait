@@ -59,6 +59,25 @@
       "description_en": "Moderate discovery, weak retention, high burnout, but low variability. Interest gradually fades over time.",
       "personal_phrase_ru": "Твой интерес к новой музыке постепенно затухает.",
       "personal_phrase_en": "Your interest in new music is gradually fading."
+    },    {
+      "id": "nomad",
+      "code": "HMHM",
+      "name_ru": "Кочевник",
+      "name_en": "Nomad",
+      "description_ru": "Много ищет, средне удерживает, быстро теряет любимое, звук стабилен. Постоянное движение в устойчивом звуковом поле.",
+      "description_en": "Discovers a lot, retains moderately, loses favorites quickly, sound stays stable. Constant motion within a stable sonic world.",
+      "personal_phrase_ru": "Ты идёшь вперёд, не меняя ландшафт вокруг.",
+      "personal_phrase_en": "You keep moving forward without changing the landscape around you."
+    },
+    {
+      "id": "homebody",
+      "code": "LLLL",
+      "name_ru": "Домосед",
+      "name_en": "Homebody",
+      "description_ru": "Мало ищет, мало удерживает, почти не теряет, звук не меняется. Устойчивый уклад, музыка как фон.",
+      "description_en": "Little discovery, little retention, almost no burnout, stable sound. A settled routine — music as background.",
+      "personal_phrase_ru": "У тебя своя музыка, и ты никуда не спешишь.",
+      "personal_phrase_en": "You have your own music, and you're in no hurry to go anywhere."
     },
     {
       "id": "tourist",

@@ -151,8 +151,8 @@
     "category": "behavioral",
     "visual_type": "gauge",
     "thresholds": [
-      0.3,
-      0.5
+      0.2,
+      0.4
     ],
     "personal_messages": {
       "low": "You still return to most of the favorite tracks you've built up over time",
@@ -891,11 +891,10 @@
       "medium": "Moderate variability, gradual taste evolution",
       "high": "High variability — frequent shifts, challenging for retention models"
     },
-    "note_short": "How often your music profile changes (PELT changepoints per year)",
+    "note_short": "How often your music profile changes)",
     "description_en": "How often your music profile changes over time.",
-    "notes_en": "Number of PELT changepoints per year based on 7 audio/behavioral metrics.",
-    "max_value": 1.5,
-    "polarity": "lower_better"
+    "notes_en": "Share of months with statistically and practically significant audio shifts in a rolling 12-month window. 0 = stable, 1 = always shifting.",
+    "polarity": "neutral"
   },
   "Music Day Share": {
     "category": "temporal",

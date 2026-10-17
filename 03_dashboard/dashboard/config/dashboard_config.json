@@ -50,11 +50,11 @@
   },
   "cluster_colors": {
     "personal": {
-      "Energetic Electronic": "accent_pink",
+      "Energetic Electronic": "accent_orange",
       "Melancholic Acoustic": "accent_blue",
       "Atmospheric Ambient": "accent_green",
       "Bright Dance": "accent_purple",
-      "Dark Groove": "accent_orange",
+      "Dark Groove": "accent_pink",
       "Vocal Drive": "accent_yellow",
       "Vocal Melancholy": "accent_cyan",
       "Organic Rock / Folk": "accent_red",
@@ -66,11 +66,11 @@
       "Mixed Style": "accent_teal"
     },
     "professional": {
-      "Energetic Electronic": "accent_blue",
-      "Melancholic Acoustic": "accent_pink",
+      "Energetic Electronic": "accent_orange",
+      "Melancholic Acoustic": "accent_blue",
       "Atmospheric Ambient": "accent_green",
       "Bright Dance": "accent_purple",
-      "Dark Groove": "accent_orange",
+      "Dark Groove": "accent_pink",
       "Vocal Drive": "accent_yellow",
       "Vocal Melancholy": "accent_cyan",
       "Organic Rock / Folk": "accent_red",
@@ -107,6 +107,8 @@
     "restless_loyalist": "accent_lime",
     "renewer": "accent_green",
     "fading_enthusiast": "accent_orange",
-    "tourist": "accent_yellow"
+    "tourist": "accent_yellow",
+    "nomad": "accent_blue",
+    "homebody": "accent_purple"
   }
 }
