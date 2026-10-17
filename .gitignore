@@ -20,6 +20,9 @@ config_private.ipynb
 .spotify_cache
 tree.md
 
+# Старый версии файлов
+OLD/
+
 # Local masking (private)
 scripts/mask_data.py
 scripts/mask_config.json
