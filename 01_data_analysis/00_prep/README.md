@@ -1,3 +1,5 @@
+🇬🇧 English | [🇷🇺 Русский](./README_ru.md)
+
 # 00_prep — data assembly
 
 Raw Spotify exports → 15 parquet files in `data/00_output/`. Every other

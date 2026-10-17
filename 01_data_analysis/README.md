@@ -1,3 +1,5 @@
+🇬🇧 English | [🇷🇺 Русский](./README_ru.md)
+
 # 01_data_analysis — EDA and data assembly
 
 Exploratory analysis of listening history: what is listened to, when,
