@@ -1,322 +1,387 @@
-# PELT Journey: от наивного детектора к проверенной архитектуре
+🇬🇧 English | [🇷🇺 Русский](./PELT_JOURNEY_ru.md)
 
-Этот документ — методологический путь: 12 итераций проверки того, можно ли
-доверять точкам разладки в истории прослушиваний. Каждая фаза — либо
-подтверждение, либо опровержение предыдущего шага. Числа в тексте — то,
-что реально было получено; пороги и выборы отдельно помечены как
-обоснованные или эвристические.
+# PELT Journey: from a naive detector to a validated architecture
 
----
-
-## Фаза 1. Наивный старт
-
-Первый прогон: `ruptures.Pelt`, `pen=10`, семь признаков без разделения на
-типы — valence, energy, danceability, instrumentalness, skip_rate,
-played_frac, orphan_share. Результат: 7 точек разладки, сценарий
-`cascade`, Variability классифицирована как High.
-
-**Что не так.** `pen=10` — число, выбранное на глаз, не выведенное ни из
-формулы, ни из свойств данных. Sensitivity-анализ (`pen=5…30`) показал,
-что сценарий меняется между `cascade`/`moderate`/`single` в зависимости
-от штрафа — вывод о «характере пользователя» оказался артефактом
-произвольного параметра. Отдельно: `orphan_share` в этом наборе
-семантически пересекается с будущей осью Discovery — одна и та же идея
-измерена дважды под разными именами. И смешение звуковых и поведенческих
-признаков в одной модели — разные по природе шумы, разные по смыслу
-сдвиги, одна ковариационная оценка на всех.
-
-**Решение.** Заменить `pen=10` на BIC-формулу (`σ²·dim·log(n)`,
-MAD-оценка шума). Разделить признаки по типу на последующих этапах.
+This document is the methodological path: 12 iterations checking whether
+the changepoints in the listening history can be trusted. Each phase is
+either a confirmation or a refutation of the previous step. The numbers
+in the text are what was actually obtained; thresholds and choices are
+separately marked as justified or heuristic. The source of numbers is
+the notebook `time_detector_experiments.ipynb`; if the text disagrees
+with a cell output, the notebook wins.
 
 ---
 
-## Фаза 2. Bootstrap — зоны, не точки
+## Phase 1. Naive start
 
-500 итераций: случайно исключается 15% месяцев (порядок сохраняется),
-PELT пересчитывается на каждой подвыборке. Доля повторов, где конкретный
-месяц даёт точку разладки, — мера устойчивости.
+First run: `ruptures.Pelt`, `pen=10`, seven features without type
+separation — valence, energy, danceability, instrumentalness, skip_rate,
+played_frac, orphan_share. Result: 7 changepoints, scenario `cascade`,
+Variability classified as High.
 
-**Результат.** Часть из 7 исходных точек не пережила пересэмплирование.
-Устойчивость показала и обратное: нашлись месяцы с высокой стабильностью,
-которых не было в списке `pen=10` вообще — сигнал, который наивная
-модель пропустила целиком. Топ по устойчивости группировался не в точки,
-а в размытые зоны по несколько соседних месяцев.
+**What's wrong.** `pen=10` is a number picked by eye, not derived from a
+formula or from the properties of the data. A sensitivity analysis
+(`pen=5…30`) showed that the scenario shifts between
+`cascade`/`moderate`/`single` depending on the penalty (a run in
+`01_data_analysis/03_eda_behavioral.ipynb`) — the claim about "the
+user's character" turned out to be an artifact of an arbitrary
+parameter. Separately: `orphan_share` in this set semantically overlaps
+with the future Discovery axis — the same idea measured twice under
+different names. And mixing sound and behavioural features in one model
+— different noise in kind, shifts different in meaning, one covariance
+estimate for all.
 
-**Что это значит.** Две разные проверки дают разную информацию:
-устойчивость к штрафу (пережила ли точка варьирование `pen`) и
-устойчивость к данным (пережила ли точка варьирование выборки). Точка
-может быть устойчива к одному и неустойчива к другому — это не
-противоречие, а две независимые оси доверия.
-
----
-
-## Фаза 3. Cosine — смена идентичности
-
-PELT на непрерывных аудио-признаках ловит сдвиг среднего настроения.
-Если сменились конкретные артисты при похожем настроении (похожая
-valence/energy, другие имена) — PELT этого не видит по конструкции.
-
-**Метод.** Косинусное расстояние между векторами долей артистов соседних
-месяцев. Пики через порог `медиана + k·MAD`.
-
-**Результат.** 6 пиков → 3 устойчивых кластера (bootstrap ≥0.81):
-`2021-02`, `2022-05`, `2024-02`. Жанровый аналог того же метода дал шум —
-15 пиков почти во всех месяцах 2021 года, без различимого сигнала;
-жанры как отдельный слой не используются.
+**Decision.** Replace `pen=10` with a BIC formula (`σ²·dim·log(n)`,
+MAD noise estimate). Split features by type in later stages.
 
 ---
 
-## Фаза 4. Разделение слоёв — два независимых процесса
+## Phase 2. Bootstrap — zones, not points
 
-PELT-A (6 звуковых признаков, median, BIC-штраф) и PELT-B (6
-поведенческих, 4 сглаженных, BIC-штраф) считаются раздельно.
+500 iterations: 15% of months randomly dropped (order preserved), PELT
+recomputed on each subsample. The share of repeats where a given month
+yields a changepoint is the stability measure. Bootstrap here runs on
+the same mixed 7-feature set (not audio-only).
 
-Пересечение между найденными точками двух слоёв — **одна точка**
-(`2024-02`), не семь общих. Это не шумная версия одного процесса — это
-два структурно разных процесса, которые меняются в разное время.
-Смешивать их в одну модель означало глушить оба сигнала одновременно.
+**Result.** 5 of the 7 original points survived (stability threshold
+0.10): `2022-05` (0.078) and `2024-11` (0.022) did not survive
+resampling. Stability also showed the opposite: months with high
+stability appeared that were not on the `pen=10` list at all — a signal
+the naive model missed entirely. The top by stability clustered not
+into points but into fuzzy zones of several adjacent months.
 
----
-
-## Фаза 5. Периодизация — не подтвердилась
-
-Гипотеза: между точками разладки есть стабильные периоды.
-
-**Проверка.** История разбита на отрезки между зонами перехода (из
-cut-scan). Для каждого отрезка — сравнение медиан первой и второй
-половины с порогом практической значимости 0.02.
-
-**Результат: 0 из 6 плато стабильны внутри.** Данные дрейфуют
-непрерывно, а не ступенчато между устойчивыми эпохами. Это
-зафиксировано как отрицательный результат — периодизация не идёт в
-финальную архитектуру, вместо неё используется непрерывная картина
-(штормовые эпизоды — зоны повышенной скорости изменения, не «эры»).
+**What this means.** Two different checks yield different information:
+stability to the penalty (did the point survive varying `pen`) and
+stability to the data (did the point survive varying the sample). A
+point can be stable to one and unstable to the other — not a
+contradiction, but two independent axes of trust.
 
 ---
 
-## Фаза 6. Self-percentile — структурный провал
+## Phase 3. Cosine — identity shift
 
-Для Variability как единого индекса компаса нужна шкала с уровнями
-Low/Medium/High. Первая попытка: перцентиль месяца относительно
-собственной истории пользователя, бины по терцилям.
+PELT on continuous audio features catches a shift in average mood. If
+specific artists changed while the mood stayed similar (similar
+valence/energy, different names) — PELT cannot see it by construction.
 
-**Проверка на синтетике.** Два смоделированных профиля — объективно
-стабильный и объективно изменчивый (реальные сдвиги каждые ~5 месяцев).
-Self-percentile дал **обоим** ~33% месяцев в категории High — по
-построению, независимо от реальной разницы между профилями (разница в
-среднем модуле сдвига — почти десятикратная).
+**Method.** Cosine distance between artist share vectors of adjacent
+months. Peaks via a `median + 2·MAD` threshold.
 
-**Вывод.** Self-percentile математически не способен сравнивать
-сущности между собой — он всегда равномерен внутри одной истории,
-какой бы ни была реальная изменчивость. Метод отброшен, не
-калибровался дальше.
+**Result.** 6 peaks → 3 clusters (bootstrap ≥0.82, production detector
+on the all + trimmed base): `2021-02`, `2022-05`, `2024-02`. The genre
+analogue of the same method returned noise — 15 peaks (7 months out of
+12 in 2021 and the entire second half of 2023–2024), with no
+discernible signal; genres as a separate layer are not used.
 
 ---
 
-## Фаза 7. Noise-floor через permutation — рабочий метод
+## Phase 4. Layer split — two independent processes
 
-Для каждой пары соседних месяцев: события обоих месяцев объединяются в
-пул, случайно раскидываются обратно на группы тех же размеров,
-пересчитывается расстояние — это и есть нулевое распределение
-«случайного шума выборки для такого N».
+PELT-A (6 sound features, median, BIC penalty, base all + trimmed) and
+PELT-B (6 behavioural, 4 smoothed, BIC penalty, base all + trimmed) are
+computed separately.
 
-**Двойной гейт.** Месяц помечается High только если наблюдаемый сдвиг
-одновременно (а) превышает 99-й перцентиль нулевого распределения и (б)
-не меньше одного практического порога (калиброван как медиана сырых
-месячных сдвигов, не универсальная константа) минимум по двум
-признакам. Без практического гейта большое число наблюдений в месяце
-делает «статистически значимым» почти любой, даже ничтожный сдвиг.
-
-**Почему работает.** Сравнение идёт не с собственной историей и не с
-чужими данными, а с тем, что дала бы чистая случайность при данном
-объёме выборки — абсолютный, не self-relative критерий.
+The intersection between the points of the two layers — **one point**
+(`2024-02`), not seven shared. This is not a noisy version of one
+process — it is two structurally different processes that change at
+different times. Mixing them into one model would have muted both
+signals at once.
 
 ---
 
-## Фаза 8. Разные нули для разных структур — Sound ≠ Behavior
+## Phase 5. Periodization — not confirmed
 
-Один и тот же permutation-шаблон не переносится механически между
-типами признаков. Проверка на Behavior показала: единый «шафл месяцев»
-даёт нуль, калиброванный на разбросе **всей истории**, а не на
-локальном шуме конкретной пары месяцев — систематически смещает оценку.
+Hypothesis: between changepoints there are stable periods.
 
-**Исправление по структуре признака.** Простые событийные агрегаты
-(hours, tracks, skip_rate, played_frac) — permutation на уровне события,
-как в Sound. `obsession_share`, который является свойством **сессии**, а
-не события — permutation на уровне сессии, иначе тасование разрушает
-саму структуру, которую проверяют.
+**Check.** History split into segments between transition zones (from
+cut-scan). For each segment — comparison of first-half and second-half
+medians against a practical significance threshold of 0.02.
 
-**Побочная находка.** `skip_rate` и `played_frac` коррелируют на уровне
-`r≈-0.9` — при голосовании «минимум N признаков подтверждают сдвиг» эта
-пара засчитывалась как два независимых голоса, будучи фактически одним
-сигналом. Введено кластерное голосование: признаки группируются по
-смыслу (объём / завершённость / обсессия), голос засчитывается по
-кластерам, не по сырым признакам.
+**Result: 0 of 6 plateaus are stable inside.** The data drift
+continuously rather than stepping between stable epochs. Recorded as a
+negative result — periodization does not enter the final architecture;
+instead a continuous picture is used (storm episodes — zones of
+elevated rate of change, not "eras").
 
 ---
 
-## Фаза 9. Detrend — устранение фантомных связей
+## Phase 6. Self-percentile — structural failure
 
-Долгоживущие дрейфующие ряды дают завышенную корреляцию просто за счёт
-общего направления движения, без реальной связи между механизмами.
+Variability as a single compass index needs a Low/Medium/High scale.
+First attempt: percentile of a month relative to the user's own history,
+tercile bins.
 
-**Проверка.** Из каждого ряда (Variability, Burnout, Discovery,
-Retention) вычтен линейный тренд, корреляции пересчитаны на остатках.
+**Synthetic check.** Two modelled profiles — objectively stable and
+objectively variable (real shifts every ~5 months). Self-percentile gave
+**both** ~34% of months in the High category — by construction,
+regardless of the real difference between profiles. A null-based
+approach distinguishes them: 8.5% vs 31.9% of High transitions.
 
-**Результат, важнейший во всём пути.** Sound Variability ↔ Burnout на
-сырых рядах — `r=-0.55, p<0.0001`, самая сильная связь во всём проекте.
-После детренда — `r≈-0.17…-0.20, p≈0.13…0.20`. При мощности теста на
-имеющемся N (~70) для эффекта такого масштаба (~38%) это **не
-опровергнутая связь, а неустановленная** — тест недостаточно мощный,
-чтобы различить «связи нет» и «связь есть, но слабая». Формулировка
-«артефакт» для этой пары излишне категорична; корректно — «сильная
-противофаза не подтвердилась, умеренная связь статистически не
-исключена».
-
-Отдельно проверена связь Sound Variability ↔ Behavior Variability:
-сырая `r≈-0.27`, после детренда — близко к нулю (`r≈+0.24, p>0.6`) —
-здесь, в отличие от Burnout, остаточная связь действительно мала
-относительно шума, не на границе чувствительности теста.
+**Conclusion.** Self-percentile is mathematically incapable of comparing
+entities against each other — it is always uniform within a single
+history, however large the real variability. Method dropped, not
+calibrated further.
 
 ---
 
-## Фаза 10. Behavior Variability не входит в компас
+## Phase 7. Noise-floor via permutation — a working method
 
-Поведенческая версия Variability посчитана тем же методом (фаза 7-8),
-что и звуковая, но архитектурно не включена в итоговый компас.
+For each pair of adjacent months: events from both months are pooled,
+randomly split back into groups of the same sizes, distance recomputed
+— this is the null distribution of "random sampling noise for this N".
 
-**Причина — не провал метода, а функциональная петля.** `discovery_rate`
-одновременно: (а) один из признаков, формирующих Behavior Variability, и
-(б) самостоятельная ось компаса (Discovery). Включение Behavior
-Variability как пятой оси частично задублировало бы Discovery.
-Эмпирическая проверка связи между ними (с полным и урезанным набором
-признаков) не выявила сильной корреляции — решение архитектурное,
-подтверждённое эмпирически как не противоречащее данным, а не выведенное
-из самой корреляции.
+**Double gate.** A month is marked High only if the observed shift
+simultaneously (a) exceeds the 99th percentile of the null distribution
+and (b) is at least one practical threshold (calibrated as p75 of raw
+monthly shifts, not a universal constant) on at least two features.
+Without the practical gate, a large number of observations per month
+makes almost any, even negligible, shift "statistically significant".
 
----
+**Why it works.** The comparison is not against the user's own history
+nor against other people's data, but against what pure chance would
+give for this sample size — an absolute, not self-relative, criterion.
 
-## Фаза 11. Обобщение в переиспользуемый инструмент
+**Sensitivity to the threshold.** The statistical threshold
+(p90 / p95 / p99) barely changes the result: lifetime 0.417 and level
+Medium are the same, High months after the gate 29 / 29 / 27. The
+practical threshold (p75) has been **checked** for sensitivity (part 2
+in the notebook): the result is determined by it — sweeping the
+quantile from p50 to p95 moves lifetime from 0.667 (High) down to 0.083
+(Low), and the level takes all three values. This is a limitation of
+the metric, not stability.
 
-Логика фаз 6-8 вынесена в `VariabilityAnalyzer` — API, не привязанный к
-Spotify: `period_col`, `value_cols`, произвольная аггрегирующая функция,
-произвольный `n_boot`, явная поддержка многомерного (Mahalanobis на
-ковариации разностей, не уровней, с Ledoit-Wolf shrinkage) и
-одномерного случая.
+**Epochs vs points.** Epochs of high Variability and PELT points do not
+overlap significantly: 4 of 7 with expected 2.5, `p = 0.22`. Layers
+answer different questions — epochs about variability in a window,
+points about breaks; overlap is not required.
 
-**Центральный принцип, задокументированный явно: единица обмена.**
-Прежде чем запускать permutation-тест, нужно определить, что можно
-валидно перемешивать без потери смысла. Событие — для простых
-агрегатов. Сессия — для свойств сессии (обсессия). Ничего — для
-метрик, зависящих от всей истории целиком (discovery: «впервые ли
-когда-либо» не тестируется локальной перестановкой двух месяцев).
-Для косинусного расстояния по составу артистов/жанров (категориальный
-признак высокой кардинальности) permutation-null проверен и отклонён:
-на реальных данных все 69 из 69 пар месяцев оказались «значимы» —
-условие «нет изменения» для такого признака статистически
-неправдоподобно само по себе (закон больших чисел гарантирует разницу
-состава между любыми двумя месяцами), подтверждено и синтетикой.
-Остаётся MAD-детекция пиков — задача поиска выбросов, а не проверки
-значимости одной пары.
-
-**Параметр `min_periods` как источник расхождения.** В ранней версии
-обёртки отсутствовал в сигнатуре `variability_score` — вызов обёртки
-падал с `TypeError`. После добавления параметра: без принудительного
-полного окна (`min_periods=window`) первые рассчитанные месяцы
-опираются на неполные окна — то же самое «эхо» короткой истории, что
-уже встречалось в проекте.
+**Current** is the last rolling-12 window, i.e. the last 12 months (not
+18).
 
 ---
 
-## Фаза 12. ALL vs VALID — семантика определяет базу
+## Phase 8. Different nulls for different structures — Sound ≠ Behavior
 
-Единого правила «всегда valid» или «всегда all» нет — выбор определяется
-тем, что именно измеряет метрика, не стремлением к единообразию.
+The same permutation template does not transfer mechanically between
+feature types. Checked on Behaviour: a single "month shuffle" yields a
+null calibrated on the **whole-history** spread, not on the local noise
+of a specific pair of months — systematically biased.
 
-| Слой | ALL | VALID | Решение | Почему |
+**Fix by feature structure.** Simple event-level aggregates (hours,
+tracks, skip_rate, played_frac) — permutation at the event level, as in
+Sound. `obsession_share`, which is a property of a **session**, not of
+an event — permutation at the session level, otherwise shuffling
+destroys the very structure being checked.
+
+**Side finding.** `skip_rate` and `played_frac` correlate at
+`r≈-0.9` — under a "at least N features confirm the shift" vote this
+pair counted as two independent votes while being in fact one signal.
+Cluster voting was introduced: features are grouped by meaning (volume /
+completion / obsession), the vote is counted by clusters, not by raw
+features. Behavior Variability is built on these 5 features;
+`discovery_rate` is not part of it.
+
+**Comparability with Sound.** Behavior lifetime 0.125 on full windows
+(`min_periods=12`, as for Sound) and 0.167 on partial (`min_periods=4`);
+Sound — 0.417. The High rule for Behaviour is stricter (≥2 clusters), so
+the conclusion "behaviour changes less often than taste" is
+preliminary.
+
+---
+
+## Phase 9. Detrend — removing phantom links
+
+Long-running drifting series give inflated correlation simply through
+shared direction of motion, with no real link between mechanisms.
+
+**Check.** A linear trend was subtracted from each series (Variability,
+Burnout, Discovery, Retention), correlations recomputed on residuals.
+
+**The most important result of the whole path.** Sound Variability ↔
+Burnout on raw series — `r=-0.55, p<0.0001`, the strongest link in the
+whole project. After detrending — `r=-0.20, p=0.13` (n=58). At n=58 the
+power of the test for an effect of this magnitude is about 30–35% — this
+is **an unconfirmed link, not a refuted one**: the test is not powerful
+enough to distinguish "no link" from "link present but weak". The word
+"artifact" for this pair is too categorical; correctly — "the strong
+anti-phase was not confirmed, a moderate link is not statistically
+excluded".
+
+Sound Variability ↔ Behavior Variability link: raw `r=-0.27` (p=0.039),
+after detrending `r=+0.243, p=0.0665` (n=58). The sign flipped, but p is
+at the boundary of the test's sensitivity, so the status is the same —
+"not established", not "no link".
+
+The only link that strengthened after detrending: Behavior Variability
+↔ Burnout, raw `+0.42` → `-0.757`. Leave-one-out over the 10 High
+months: r stays in the range −0.614…−0.842 (median −0.703), the sign
+does not change. Not accounted for: correlations are computed on
+rolling windows (rolling-12 and the yearly Burnout window), adjacent
+points overlap, so the effective n is below 58 and p-values are
+optimistic; multiple-testing correction across 10 pairs was not applied.
+
+---
+
+## Phase 10. Behavior Variability does not enter the compass
+
+The behavioural version of Variability is computed with the same method
+(phases 7–8) as the sound one, but architecturally not included in the
+final compass.
+
+**Two reasons.**
+
+1. **Empirical (main).** After detrending Behavior Variability is linked
+   to Burnout (`r=-0.757`, phase 9); a fifth axis would break the
+   compass "orthogonality".
+2. **Check for duplication of Discovery.** Behavior Variability must not
+   repeat the Discovery axis. `discovery_rate` is not part of it (phase
+   8 set: hours, tracks, skip_rate, played_frac, obsession_share).
+   There is no link to Discovery either for this set (`r=-0.094,
+   p=0.45`), or for the set with the semantically close `orphan_share`
+   (`r=+0.138, p=0.27`).
+
+Behavior Variability remains a research metric: it is valid, but it
+does not enter the compass and is not exported to the dashboard.
+
+---
+
+## Phase 11. Generalization into a reusable tool
+
+The logic of phases 6–8 is factored out into `VariabilityAnalyzer` — an
+API not tied to Spotify: `period_col`, `value_cols`, an arbitrary
+aggregation function, an arbitrary `n_boot`, explicit support for the
+multivariate (Mahalanobis on the covariance of differences, not levels,
+with Ledoit-Wolf shrinkage) and univariate cases.
+
+**Central principle, documented explicitly: the exchange unit.**
+Before running a permutation test, one must define what can be validly
+shuffled without losing meaning. Event — for simple aggregates. Session
+— for session properties (obsession). Nothing — for metrics that depend
+on the whole history at once (discovery: "is it the first time ever" is
+not tested by locally swapping two months). For cosine distance on
+artist/genre composition (a high-cardinality categorical feature),
+permutation-null was checked and rejected: on real data all 69 of 69
+month pairs came out "significant" — the condition "no change" for such
+a feature is statistically implausible in itself (the law of large
+numbers guarantees a difference in composition between any two months),
+also confirmed on synthetic data. What remains is MAD peak detection —
+an outlier-finding task, not a significance check of a single pair.
+
+**The `min_periods` parameter as a source of discrepancy.** Without an
+explicit `min_periods`, the toolkit takes
+`max(3, window // 3) = 4`: early points are computed on partial windows,
+the median is biased upward. Checked: `min_periods=None` gives lifetime
+= 0.500, `min_periods=12` gives 0.417; production passes 12 explicitly.
+The value 0.423 from an early run is not reproducible in the notebook.
+
+---
+
+## Phase 12. ALL vs VALID — semantics determines the base
+
+There is no single rule "always valid" or "always all" — the choice is
+determined by what the metric measures, not by a wish for uniformity.
+
+| Layer | ALL | VALID | Decision | Why |
 |---|---|---|---|---|
-| PELT-A (звук) | 3 точки | 3 точки | **VALID** | результат не меняется, valid честнее по смыслу |
-| PELT-B (поведение) | работает | тавтология | **ALL** | skip_rate≡0, played_frac≥0.5 на valid по определению |
-| Cosine (идентичность) | 3 кластера | 1 кластер | **ALL** | на valid порог MAD нестабилен из-за разрежённости матрицы артистов при меньшем N; permutation-null для этого признака неприменим в принципе (фаза 11) |
-| Storm (турбулентность) | 2 эпизода | 3 эпизода | **ALL** | по согласованности с Cosine, та же база данных для связанных по смыслу слоёв |
-| Variability (компас) | — | — | **VALID** | измеряет вкус осознанно прослушанного |
+| PELT-A (sound) | 3 points | 3 points | **ALL** | result unchanged; track sound does not depend on skip; ALL gives more data (σ² 0.420 vs 0.521); base matches PELT-B, Cosine and Storm |
+| PELT-B (behaviour) | works | tautology | **ALL** | skip_rate≡0, played_frac≥0.5 on valid by definition |
+| Cosine (identity) | 3 clusters | 1 cluster | **ALL** | on valid the MAD threshold is unstable due to artist-matrix sparsity at lower N; permutation-null is inapplicable to this feature in principle (phase 11) |
+| Storm (turbulence) | 2 episodes | 3 episodes | **ALL** | on ALL 2 episodes vs 3 on VALID — more conservative; the base matches Cosine for convenience of comparison, but the choice is ALL, not Cosine |
+| Variability (compass) | — | — | **VALID** | measures taste of consciously listened material |
 
-Потеря сигнала Cosine на valid (3→1) была изначально принята за дыру в
-пороге, пригодную для перекалибровки — permutation-null, который должен
-был это починить, оказался неприменим в принципе к этому типу признака
-(см. фазу 11). Это не «решили не чинить» — чинить было нечего, метод
-не подходит под задачу с самого начала.
-
----
-
-## Итоговая архитектура
-
-Четыре независимых слоя, не один универсальный детектор:
-
-- **PELT-A** (звук, valid, BIC) — глобальные сдвиги среднего настроения
-- **PELT-B** (поведение, all, BIC) — глобальные сдвиги поведенческих паттернов
-- **Cosine** (идентичность, all, MAD-пики) — сдвиги состава артистов
-- **Storm** (all, rolling std + биномиальный тест) — зоны повышенной турбулентности, не периоды
-
-Плюс отдельная ось компаса **Sound Variability** (valid,
-permutation-noise-floor + двойной гейт, `VariabilityAnalyzer`) — не то же
-самое, что любой из четырёх детекторов точек, а агрегированная доля
-«статистически и практически значимых» месячных сдвигов в окне.
-
-**Численное значение Sound Variability** в последней подтверждённой
-сверке ручного расчёта и `VariabilityAnalyzer` (`min_periods=12`,
-5 seed) совпадало на уровне **0.417** (Medium). На более ранних этапах
-итерации встречались значения 0.423 и 0.500 — результат использования
-разных конфигураций (база ALL/VALID, наличие практического гейта,
-значение `min_periods`) до их выравнивания. Перед тем как класть число
-в финальную документацию — свериться с актуальным выводом кода, а не
-брать это значение как окончательное на слово.
+The loss of Cosine signal on valid (3→1) was initially taken for a gap
+in the threshold worth recalibrating — a permutation-null that was
+supposed to fix it turned out to be inapplicable in principle to this
+feature type (see phase 11). This is not "decided not to fix" — there
+was nothing to fix, the method does not fit the task from the very
+start.
 
 ---
 
-## Приложение: сравнение с примитивным детектором (поведенческий EDA)
+## Final architecture
 
-Поведенческий EDA-ноутбук (`03_eda_behavioral` / в новой нумерации —
-соответствующий файл в `01_data_analysis`) сознательно оставлен на
-примитивной версии: `pen=10`, 7 смешанных признаков, без bootstrap, без
-обрезки холодного старта. Это не забытый дефолт — явное архитектурное
-решение не дублировать методологию внутри описательного EDA (см.
-обоснование в самом ноутбуке).
+Four independent layers of points, not one universal detector:
 
-Сравнение точек примитивного детектора (7, сценарий `cascade`) с
-финальными слоями:
+- **PELT-A** (sound, all, BIC) — global shifts of average mood
+- **PELT-B** (behaviour, all, BIC) — global shifts of behavioural patterns
+- **Cosine** (identity, all, MAD peaks) — shifts in artist lineup
+- **Storm** (all, rolling std + binomial test) — zones of elevated turbulence, not periods
 
-| Примитивный PELT | Финальный слой | Статус |
+Plus a separate compass axis **Sound Variability** (valid,
+permutation-noise-floor + double gate, `VariabilityAnalyzer`) — not the
+same as any of the four point detectors, but the aggregated share of
+"statistically and practically significant" monthly shifts within a
+window.
+
+**The numerical value of Sound Variability** in the latest confirmed
+cross-check between the manual computation and `VariabilityAnalyzer`
+(`min_periods=12`, 5 seeds) matched at **0.417** (Medium); current (last
+rolling-12 window) — **0.083** (Low). The value 0.500 is obtained with
+`min_periods=None` (partial windows). Before putting the number into
+the final documentation — cross-check with the current output of the
+code.
+
+---
+
+## Appendix: comparison with the primitive detector (behavioural EDA)
+
+The behavioural EDA notebook (`03_eda_behavioral` / in the new numbering
+— the corresponding file in `01_data_analysis`) is deliberately left on
+the primitive version: `pen=10`, 7 mixed features, no bootstrap, no
+cold-start trimming. This is not a forgotten default — an explicit
+architectural decision not to duplicate the methodology inside the
+descriptive EDA (see the reasoning in the notebook itself).
+
+Comparison of the primitive detector's points (7, scenario `cascade`)
+with the final layers:
+
+| Primitive PELT | Final layer | Status |
 |---|---|---|
-| 2021-07 | 2021-08 (PELT-B) | совпадает, ±1 мес |
-| 2022-05 | Cosine | не прошла bootstrap самого Cosine (stability 0.078), но независимо подтверждена артистовым сдвигом (топ-4 из 71) и всплеском обсессий (×4.8 от базового уровня) — см. фазы 3 и 8 |
-| 2022-10 | — | не подтверждается ни одним слоем, ни одной независимой проверкой |
-| 2023-08 | 2023-09 (PELT-A) | совпадает, ±1 мес |
-| 2024-06 | 2024-07 (PELT-A) | совпадает, ±1 мес |
-| 2024-11 | 2024-12 (PELT-B) | совпадает, ±1 мес |
-| 2025-09 | 2025-10 (PELT-B) | совпадает, ±1 мес |
-| — | 2021-02 (Cosine) | новая, не найдена примитивным детектором |
-| — | 2024-02 | новая; единственная точка, видимая одновременно во всех трёх слоях (звук, поведение, идентичность) |
-| — | 2026-03 (PELT-B) | новая, не найдена примитивным детектором |
+| 2021-07 | 2021-08 (PELT-B) | matches, ±1 month |
+| 2022-05 | Cosine | did not survive bootstrap of the naive PELT (0.078), but found by Cosine (stability 0.825, production detector); independently confirmed by an artist shift (top-4 of 71) and an obsession spike (×4.8 of baseline) — both numbers from a separate run, not reproduced in the notebook |
+| 2022-10 | — | not confirmed by any layer, by any independent check |
+| 2023-08 | 2023-09 (PELT-A) | matches, ±1 month |
+| 2024-06 | 2024-07 (PELT-A) | matches, ±1 month |
+| 2024-11 | 2024-12 (PELT-B) | matches, ±1 month |
+| 2025-09 | 2025-10 (PELT-B) | matches, ±1 month |
+| — | 2021-02 (Cosine) | new, not found by the primitive detector |
+| — | 2024-02 | new; the only point visible simultaneously in all three layers (sound, behaviour, identity) |
+| — | 2026-03 (PELT-B) | new, not found by the primitive detector |
 
-Из 7 точек примитивного детектора пять совпадают с точностью до месяца,
-одна подтверждена независимо через другой слой, одна не подтверждается
-нигде. Финальная архитектура добавляет три точки, которых примитивный
-метод не видел вообще — две из них (2021-02, 2026-03) не проходят через
-аудио-настроение и находятся только слоями, спроектированными позже.
+Of the 7 points of the primitive detector, **five match within ±1 month
+against PELT-A or PELT-B**; one (2022-05) is confirmed **exactly**
+through Cosine — a layer of a different nature (identity, not mood);
+one (2022-10) is not confirmed by any layer. The final architecture adds
+three points the primitive method did not see at all — two of them
+(2021-02, 2026-03) do not pass through audio mood and are found only by
+layers designed later.
+
+`2024-11` is an example of the same principle as `2022-05`: the naive
+PELT bootstrap rejected it (0.022), but PELT-B found `2024-12` on the
+behavioural layer (stability 0.105). Bootstrap of one layer is not the
+final instance — independent confirmation by another layer is stronger.
 
 ---
 
-## Ограничения, актуальные для всего документа
+## Limitations relevant to the whole document
 
-- Все пороги double-gate (99-й перцентиль, 2 признака минимум) —
-  откалиброванные на этих данных эвристики, не выведенные из общей
-  теории; на другом профиле могут потребовать перекалибровки.
-- Метод проверен на N=1. Устойчивость принципов (не конкретных чисел) к
-  другим профилям не проверялась.
-- Ортогональность осей компаса после детренда подтверждена в смысле
-  «сильная связь не обнаружена»; для связей масштаба r≈0.15–0.20 при
-  n≈70 мощность теста недостаточна, чтобы исключить их полностью.
-- Permutation-null для категориальных identity-признаков (артисты,
-  жанры) не работает в принципе — это установленный факт метода, не
-  открытый вопрос для будущей доработки.
+- All double-gate thresholds (99th percentile, at least 2 features, p75
+  practical) are heuristics calibrated on this data, not derived from
+  general theory; on another profile they may require recalibration.
+  Sensitivity to the statistical threshold (p90/p95/p99) has been
+  checked and is small; to the practical one — **checked and large**:
+  the result is fully determined by the chosen quantile (p50 → p95:
+  lifetime 0.667 High → 0.083 Low). The label is relative to the
+  profile.
+- The method is validated on N=1. The stability of the principles (not
+  the specific numbers) to other profiles has not been checked.
+- The orthogonality of compass axes after detrending is confirmed in the
+  sense of "no strong link was found"; for links of magnitude
+  r≈0.15–0.20 at n=58 the power of the test is insufficient to rule
+  them out completely.
+- Correlations of phase 9 are computed on overlapping rolling windows:
+  the effective n is below 58, p-values are optimistic; multiple-testing
+  correction was not applied.
+- Permutation-null for categorical identity features (artists, genres)
+  does not work in principle — an established fact of the method, not
+  an open question for future work.
