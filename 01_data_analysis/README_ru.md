@@ -1,4 +1,4 @@
-🇬🇧 English | [🇷🇺 Русский](./README_ru.md)
+[🇬🇧 English](./README.md) | 🇷🇺 Русский
 
 # 01_data_analysis — EDA и сборка данных
 
