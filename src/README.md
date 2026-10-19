@@ -1,49 +1,41 @@
 🇬🇧 English | [🇷🇺 Русский](./README_ru.md)
 
-# src/ — project architecture
+# src/ — Project Architecture
 
-Modules for processing Spotify events, building behavioural metrics, and
-assembling dashboard parquets.
+Modules for processing Spotify events, building behavioral metrics, and assembling dashboard parquets.
 
-Used in the prep notebook (`03_dashboard/dashboard_data_prep.ipynb`).
-Each cell calls functions from here; it does no calculations itself.
+Used in the prep notebook (`03_dashboard/dashboard_data_prep.ipynb`). Each cell calls functions from here and does not calculate anything itself.
 
 ## Principles
 
 **1. Layers only know about the layer below.**
-A lower layer never references an upper one. `enrich` doesn't know about
-`indices`; `bases` doesn't know about `detectors`. Change an upper layer
-— the lower one is untouched.
+A lower layer never references an upper one. `enrich` doesn't know about `indices`; `bases` doesn't know about `detectors`. Change an upper layer — the lower one is untouched.
 
 **2. Rule of two.**
-If a function is used in 2+ notebooks or 2+ places — it lives in `src/`.
-If in one — inline in the notebook.
+If a function is used in 2+ notebooks or 2+ places — it lives in `src/`. If in one — inline in the notebook.
 
 **3. Module by the nature of the entity, not by consumer.**
-A base definition doesn't know who uses it. `bases.py` doesn't mention
-PELT. The consumer states explicitly: "I take valid" or "I take trimmed".
+A base definition doesn't know who uses it. `bases.py` doesn't mention PELT. The consumer states explicitly: "I take valid" or "I take trimmed".
 
 **4. Single source of truth.**
-`valid_play` is defined once in `enrich.add_valid_play`. Everyone —
-`bases.valid`, `indices.skip_risk_index`, `portrait` — reads the column.
-Change the definition — edit in one place.
+`valid_play` is defined once in `enrich.add_valid_play`. Everyone — `bases.valid`, `indices.skip_risk_index`, `portrait` — reads the column. Change the definition — edit in one place.
 
 **5. Folder — if there are 3+ files.**
-Otherwise — flat. `bases.py`, `temporal.py`, `indices.py` sit side by
-side. `detectors/`, `aggregators/`, `clustering/` are folders.
+Otherwise — flat. `bases.py`, `temporal.py`, `indices.py` sit side by side. `detectors/`, `aggregators/`, `clustering/` are folders.
 
-## Tree
+## Directory Structure
 
-```
+```text
 src/
 ├── README.md                     ← this file
+├── README_ru.md
 ├── __init__.py
 │
 ├── paths.py                      infrastructure: paths, folders
 ├── loaders.py                    infrastructure: parquet loading
 ├── mask.py                       infrastructure: masking personal data
 │
-├── helpers.py                    pure utilities, no domain
+├── helpers.py                    pure utilities without domain
 ├── temporal.py                   windows and cold-start trimming
 ├── bases.py                      df slices (all / valid / trimmed / …)
 ├── enrich.py                     adding columns to df
@@ -52,10 +44,10 @@ src/
 ├── portrait.py                   compass: Discovery, Retention, Burnout
 ├── variability_export.py         Variability export to parquet
 │
-├── aggregators/                  event-to-period rollups
+├── aggregators/                  event rollups into periods
 │   ├── music.py                  monthly sound medians
-│   ├── behavior.py               behavioural aggregates + obsessions
-│   └── temporal.py               time series M/W/D for dashboard
+│   ├── behavior.py               behavioral aggregates + obsessions
+│   └── temporal.py               time series M/W/D for the dashboard
 │
 ├── clustering/                   splitting sound into groups
 │   ├── kmeans.py                 k selection, KMeans, PCA
@@ -64,7 +56,7 @@ src/
 └── detectors/                    pattern detection in aggregates
     ├── pelt_common.py            BIC penalty + bootstrap
     ├── pelt_sound.py             PELT-A (sound)
-    ├── pelt_behavior.py          PELT-B (behaviour)
+    ├── pelt_behavior.py          PELT-B (behavior)
     ├── cosine_identity.py        identity shift (artists)
     ├── storm.py                  storm episodes
     ├── cut_scan.py               transition regions
@@ -75,30 +67,23 @@ src/
 
 ## Layers
 
-Each layer works with the output of the previous one. There are no
-backward references.
+Each layer works with the output of the previous one. There are no backward references.
 
-```
+```text
 5. Detectors           pattern detection (PELT, Cosine, Storm)
    ▲
-6. Aggregators         events → periods (medians, shares)
+4. Aggregators         events → periods (medians, shares)
    ▲
-7. Indices             number metrics from slices
+3. Indices             number metrics from slices
    ▲
-8. Bases               df slices (valid, trimmed, …)
+2. Bases               df slices (valid, trimmed, …)
    ▲
-9. Enrich              adding columns (valid_play, my_music, …)
+1. Enrich              adding columns (valid_play, my_music, …)
    ▲
-10. Infrastructure      paths, loading, masking (no data work)
+0. Infrastructure      paths, loading, masking (no data work)
 ```
 
-**Masking is outside the layers.** `mask.py` is called at the very end
-of the prep notebook, before writing parquets to the public `datasets/`
-folder. This is not part of the calculation pipeline — it is a separate
-pass over the final aggregates. It reads `scripts/mask_config.json`
-(local, not in git), replaces real identifiers with masks. Only personal
-identifiers (email, account IDs, personal playlist names) are masked in
-four parquets; track names, artists, and timestamps are not masked.
+**Masking is outside the layers.** `mask.py` is called at the very end of the prep notebook, before writing parquets to the public `datasets/` folder. This is not part of the calculation pipeline — it is a separate pass over the final aggregates. It reads `scripts/mask_config.json` (local, not in git), replaces real identifiers with masks. Only personal identifiers (email, account IDs, personal playlist names) are masked in four parquets; track names, artists, and timestamps are not masked.
 
 ## Modules
 
@@ -179,7 +164,7 @@ four parquets; track names, artists, and timestamps are not masked.
 - `SOUND_FEATURES` — 6 features (valence, energy, danceability, instrumentalness, acousticness, tempo)
 - `build_monthly_sound(df)` — monthly medians
 
-**`aggregators/behavior.py`** — monthly behaviour + obsessions.
+**`aggregators/behavior.py`** — monthly behavior + obsessions.
 - `BEHAVIOR_FEATURES_PELT` — 6 features for PELT-B
 - `build_monthly_behavior(df)` — hours, tracks, skip_rate, played_frac, obsession_share, discovery_rate + smoothed
 - `is_obsession_event(df)` — obsession flag per event
@@ -212,7 +197,7 @@ four parquets; track names, artists, and timestamps are not masked.
 **`detectors/pelt_sound.py`** — PELT-A (sound). Uses `SOUND_FEATURES` and `pelt_common`.
 - `detect(monthly_sound)` → dict with points and stability
 
-**`detectors/pelt_behavior.py`** — PELT-B (behaviour). Uses `BEHAVIOR_FEATURES_PELT` and `pelt_common`.
+**`detectors/pelt_behavior.py`** — PELT-B (behavior). Uses `BEHAVIOR_FEATURES_PELT` and `pelt_common`.
 - `detect(monthly_behavior)` → dict
 
 **`detectors/cosine_identity.py`** — identity shift.
@@ -236,7 +221,7 @@ four parquets; track names, artists, and timestamps are not masked.
 - `build(df, output_path)` — calls 4 detectors, assembles `time_changepoints.parquet` + `time_storms.parquet`
 - The `confidence` column in `time_changepoints` is bootstrap stability, but scales from different layers are not comparable (Cosine ≈ 0.8 — MAD threshold stability; PELT ≈ 0.1–0.37 — point stability to month exclusion).
 
-## Bases
+## Canonical Bases
 
 Which layer is computed on which base. **Single project-wide decision.**
 
@@ -245,7 +230,7 @@ Which layer is computed on which base. **Single project-wide decision.**
 | **Discovery / Retention / Burnout** | valid | conscious listening |
 | **Variability** | trimmed_valid | taste without cold start |
 | **PELT-A (sound)** | trimmed | track sound does not depend on skip; result on valid is the same (same 3 points), on all there is more data; base matches other point layers |
-| **PELT-B (behaviour)** | trimmed | skip_rate and played_frac are dead on valid |
+| **PELT-B (behavior)** | trimmed | skip_rate and played_frac are dead on valid |
 | **Cosine (artists)** | trimmed | artist lineup across all events |
 | **Storm** | trimmed | rate of change across all events |
 | **Obsessions** | df (all) | session-level and event-level on all events |
@@ -253,31 +238,24 @@ Which layer is computed on which base. **Single project-wide decision.**
 | **Collection** | df (all) | reference data, playlists |
 | **kpi_summary** | by index | some valid, some all — each decides for itself |
 
-## Calculation principles
+## Calculation Principles
 
 **1. dropna by own columns.**
-Each index/detector does `dropna` only on the columns it uses. Not on the
-common set.
-Example: `acoustic_energy_balance` uses `energy` and `acousticness`,
-dropna on them. `loudness` (with NaN) does not affect it.
+Each index/detector does `dropna` only on the columns it uses. Not on the common set.
+Example: `acoustic_energy_balance` uses `energy` and `acousticness`, dropna on them. `loudness` (with NaN) does not affect it.
 
 **2. Smoothing for noisy features.**
-`tracks`, `skip_rate`, `played_frac`, `discovery_rate` are smoothed with
-rolling(3) before PELT-B.
+`tracks`, `skip_rate`, `played_frac`, `discovery_rate` are smoothed with rolling(3) before PELT-B.
 
 **3. Bootstrap — for point stability.**
-PELT points are filtered by bootstrap ≥ 0.10 (drop 15% months, 200
-iterations).
+PELT points are filtered by bootstrap ≥ 0.10 (drop 15% months, 200 iterations).
 
 **4. Windows — relative to max_data_date.**
-`recent_6q` = max_data_date − 18 months. `last_90d` = max_data_date −
-90 days.
+`recent_6q` = max_data_date − 18 months. `last_90d` = max_data_date − 90 days.
 Not calendar-based — otherwise an incomplete quarter distorts the window.
 
 **5. Variability thresholds.**
-Statistical threshold permutation-null — p99; practical — p75 of raw
-shifts (≥2 features). Sensitivity to p90/p95/p99 is checked
-(`02_methodology`, phase 7): the final level does not change.
+Statistical threshold permutation-null — p99; practical — p75 of raw shifts (≥2 features). Sensitivity to p90/p95/p99 is checked (`02_methodology`, phase 7): the final level does not change.
 
 ## What is NOT in src/
 
@@ -288,15 +266,9 @@ Anything used only once stays **inline in the notebook**:
 
 **Rule:** second consumer → move to `src/`. Until then — inline.
 
-## Who uses what
+## Who Uses What
 
-- **Prep notebook** (`03_dashboard/dashboard_data_prep.ipynb`) — orchestrator.
-  Imports everything needed, calls in the right order, saves parquets.
-  At the end — `mask_all` for four parquets with personal data.
-- **Separate research notebooks** (`01_eda_basic`, `02_eda_temporal`,
-  `03_eda_behavioral`, `04_eda_playlists`) — take `get_base_path` from `paths`.
-  Only `04_eda_playlists` additionally calls `mask_all` in block 0.
-  Do not duplicate analysis logic — it is inline in the notebooks.
-- **Dashboard** (`03_dashboard/dashboard/app.py`) — reads only `datasets/`,
-  does not work with `src/` directly.
+- **Prep notebook** (`03_dashboard/dashboard_data_prep.ipynb`) — orchestrator. Imports everything needed, calls in the right order, saves parquets. At the end — `mask_all` for four parquets with personal data.
+- **Separate research notebooks** (`01_eda_basic`, `02_eda_temporal`, `03_eda_behavioral`, `04_eda_playlists`) — take `get_base_path` from `paths`. Only `04_eda_playlists` additionally calls `mask_all` in block 0. Do not duplicate analysis logic — it is inline in the notebooks.
+- **Dashboard** (`03_dashboard/dashboard/app.py`) — imports `src/paths.py` to locate the `datasets/` folder. Calculation modules in `src/` (detectors, aggregators, etc.) are not used directly — it only reads the pre-built parquets.
 - **`scripts/mask_config.json`** — read from `src/mask.py`, not in git.
