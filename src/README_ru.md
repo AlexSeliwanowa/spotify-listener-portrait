@@ -289,6 +289,5 @@ PELT-точки фильтруются по bootstrap ≥ 0.10 (drop 15% мес�
   `03_eda_behavioral`, `04_eda_playlists`) — берут `get_base_path` из `paths`.
   Только `04_eda_playlists` дополнительно вызывает `mask_all` в блоке 0.
   Логику анализа не дублируют — она inline в ноутбуках.
-- **Dashboard** (`03_dashboard/dashboard/app.py`) — читает только `datasets/`,
-  не работает с `src/` напрямую.
+- **Dashboard** (`03_dashboard/dashboard/app.py`) — импортирует `src/paths.py`, чтобы найти папку `datasets/`. Расчётные модули `src/` (детекторы, агрегаторы и т.д.) напрямую не использует — только читает готовые паркеты.
 - **`scripts/mask_config.json`** — читается из `src/mask.py`, в git не попадает.
