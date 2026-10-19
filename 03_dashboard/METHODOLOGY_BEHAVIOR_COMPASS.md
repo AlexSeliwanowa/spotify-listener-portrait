@@ -1,109 +1,65 @@
-# Behavior-компас
+🇬🇧 English | [🇷🇺 Русский](./METHODOLOGY_BEHAVIOR_COMPASS_ru.md)
 
-Авторский инструмент профилирования слушателя. Показывает пользователя
-по четырём осям и присваивает один из девяти архетипов.
+# Behavior Compass
 
-Это не психометрический тест и не типология личности. Рамка для
-рефлексии и продуктовой сегментации. Пользователь получает образ себя
-через музыку, аналитик — ориентир для персонализации.
+# Behavior Compass — Methodology
 
-Sound отвечает на вопрос «что ты слушаешь», Time — «когда». Компас
-отвечает на другой: «кто ты как слушатель». Ответ синтетический —
-глядя на четыре числа рядом, его не получишь.
+**What this is.** A reference for the compass logic used in `03_dashboard`: four axes, nine archetypes, nearest-neighbor matching. The dashboard implements this document; if they disagree — the code is correct.
 
-## Четыре оси
+An author's tool for listener profiling. Displays the user across four axes and assigns one of nine archetypes.
 
-**Discovery** — как активно пользователь ищет новое. Медиана
-квартального Discovery Rate, пороги 0.3 / 0.5. Источник —
-Spotify Research (2022).
+This is not a psychometric test or a personality typology. A framework for reflection and product segmentation. The user gets an image of themselves through music; the analyst gets a guideline for personalization.
 
-**Retention** — как часто найденное возвращается. Доля новых треков,
-вернувшихся в 90 дней. Пороги 0.3 / 0.5.
+## Four Axes
 
-**Burnout** — как быстро уходят любимые треки. Доля core-треков
-(≥5 валидных прослушиваний), ушедших из ротации больше года назад.
-Пороги 0.3 / 0.5.
+**Discovery** — how actively the user seeks new music. Median quarterly Discovery Rate, thresholds 0.3 / 0.5. Source — Spotify Research (2022).
 
-**Sound Variability** — насколько изменчив профиль во времени. Доля
-значимых месячных сдвигов звука в окне 12 месяцев. Пороги 0.3 / 0.5,
-фиксированные.
+**Retention** — how often what is found returns. Share of new tracks that return within 90 days. Thresholds 0.3 / 0.5.
 
-Каждая ось сводится к уровню Low / Medium / High. Четыре уровня дают
-код из четырёх букв, например `HHLM`.
+**Burnout** — how quickly favorite tracks fade. Share of core tracks (≥5 valid plays) that left rotation more than a year ago. Thresholds 0.3 / 0.5.
 
-## Архетипы
+**Sound Variability** — how changeable the profile is over time. Share of significant monthly sound shifts within a 12-month window. Thresholds 0.3 / 0.5, fixed.
 
-Девять штук. Матчинг — nearest-neighbor: уровни пользователя переводятся
-в числа (L=0, M=1, H=2), считается евклидово расстояние до каждого
-кода, побеждает ближайший.
+Each axis is reduced to a Low / Medium / High level. Four levels yield a four-letter code, e.g. `HHLM`.
 
-`match_distance` показывается рядом с архетипом — видно, насколько
-точно совпадение.
+## Archetypes
 
-Кластеризация не используется. Пробовали KMeans на 81 теоретической
-комбинации уровней. Silhouette 0.158 — структура слабая:
-кластеризуется равномерная решётка, не данные людей.
-Nearest-neighbor честнее — не создаёт видимость статистической
-строгости там, где её нет.
+Nine of them. Matching — nearest-neighbor: user levels are converted to numbers (L=0, M=1, H=2), the Euclidean distance to each code is calculated, the closest wins.
 
-## Где показан в дашборде
+`match_distance` is shown next to the archetype — it shows how exact the match is.
 
-- **Overview (Personal)** — имя архетипа, персональная фраза,
-  радар-чарт с четырьмя осями.
-- **Overview (Professional)** — блок Listener profile: сводка уровней,
-  `match_distance`, рекомендации (Key takeaways).
-- **Behavior (Personal)** — радар-чарт, карточка архетипа, пояснение
-  каждой оси.
-- **PDF-отчёт (Personal)** — компас и архетип выгружаются в PDF.
+Clustering is not used. We tried KMeans on 81 theoretical combinations of levels. Silhouette 0.158 — weak structure: it clusters a uniform grid, not human data. Nearest-neighbor is more honest — it doesn't create an illusion of statistical rigor where there is none.
 
-## Технические обоснования
+## Where it is shown in the dashboard
 
-**MIN_TRANSITIONS_FOR_VARIABILITY = 24.** Sound Variability считается
-через rolling 12 с `min_periods = window`. Чтобы медиана по
-rolling-серии была устойчивой, нужно достаточно валидных точек.
-24 перехода дают 13 валидных точек. При прежнем пороге 18 было
-7 точек — мало, один выброс сдвигает медиану. 24 — минимально
-достаточный. Это около 25 месяцев данных.
+- **Overview (Personal)** — archetype name, personal phrase, radar chart with four axes.
+- **Overview (Professional)** — Listener profile block: summary of levels, `match_distance`, recommendations (Key takeaways).
+- **Behavior (Personal)** — radar chart, archetype card, explanation of each axis.
+- **Behavior (Professional)** — exact axis values and levels (High / Medium / Low), the **Product takeaway** block (recommendations based on the current profile), split into **Recalculated per window** (Discovery and Retention for the selected period) and **Not recalculated per window** (Burnout and Variability are calculated once on the full history).
+- **PDF report (Personal)** — compass and archetype are exported to PDF.
 
-**Почему в компас идёт lifetime, а не current.** `current_score` —
-последнее значение rolling-12, «что со мной в этом месяце». Компас
-отвечает на «кто я в целом». Поэтому в него идёт `lifetime_score` —
-медиана по всей истории. Current отображается отдельно, в разделе
-Variability на вкладке Time, но в компас не попадает.
+**Code.**
+- Axis calculation — `src/portrait.py` (`discovery_global`, `retention_90`, `burnout`, `build_axes`).
+- Archetype matching — `03_dashboard/dashboard/logic/profile.py`.
+- Archetype definitions — `03_dashboard/dashboard/config/profile_labels.json`.
+- Axis level thresholds — `03_dashboard/dashboard/config/indices_display.json`.
 
-## Ограничения
+## Technical Justifications
 
-**Пороги.** Retention, Burnout, Sound Variability подобраны на этих
-данных. Discovery — из Spotify Research. Для другого профиля три из
-четырёх придётся перекалибровать.
+**MIN_TRANSITIONS_FOR_VARIABILITY = 24.** Sound Variability is calculated via rolling 12 with `min_periods = window`. For the median of the rolling series to be stable, enough valid points are needed. 24 transitions yield 13 valid points. At the previous threshold of 18, there were 7 points — too few, one outlier shifts the median. 24 is the minimum sufficient. This is about 25 months of data.
 
-**Девять архетипов не покрывают 81 комбинацию равномерно.**
-`restless_wanderer` ловит 10 из 81 (≈12%), `tourist` — 11 из 81
-(≈14%). Максимальное расстояние от комбинации до ближайшего архетипа —
-1.414: каждая точка решётки покрыта, «дыр» нет.
+**Data windows in the compass.** In `Lifetime` mode, all four axes are calculated over the entire history. In `Last 18 months` mode, the Discovery and Retention axes are recalculated for the selected window, while Burnout and Variability remain global (this is indicated by a note in the interface). In `Last 90 days` mode, the compass is hidden because at least 12 months of data are required. For the Variability axis, the compass always uses `lifetime_score` (the median over the entire history) because the compass answers the question "who am I overall". The `current_score` value (the last rolling-12 window) is displayed separately — on the Time tab.
 
-**Ничьи.** 23 из 81 комбинации дают равенство двух ближайших.
-Разрешаются весами и иерархией осей D → V → R → B в
-`profile_labels.json`: при равенстве решает старшая ось, затем
-следующая. После применения весов и иерархии ничьих не остаётся
-(0 из 81). Изменение весов или порядка осей — для части комбинаций
-победитель сменится.
+## Limitations
 
-**N=1.** Числа откалиброваны на одном профиле. Переносимость не
-проверена.
+**Thresholds and N=1.** Retention, Burnout, and Sound Variability are calibrated on this single profile. Discovery — from Spotify Research. For another profile, three of the four axes will require recalibration; transferability has not been tested.
 
-**Sound Variability внутри компаса зависит от практического порога.**
-При смене квантиля p50 → p95 lifetime меняется от 0.667 (High) до
-0.083 (Low). Подробнее — в `02_methodology/README.md`, раздел
-«Ограничения».
+**Nine archetypes do not cover the 81 combinations evenly.** `restless_wanderer` covers 10 of 81 (≈12%), `tourist` — 11 of 81 (≈14%). The maximum distance from a combination to the nearest archetype is 1.414: every point of the grid is covered, there are no "holes".
 
-## Возможное развитие
+**Ties.** 23 out of 81 combinations yield a tie between the two closest archetypes. These are resolved by weights and the axis hierarchy D → V → R → B in `profile_labels.json`: on a tie, the senior axis decides, then the next one. After applying weights and hierarchy, no ties remain (0 out of 81). Changing the weights or axis order will change the winner for some combinations.
 
-Compass откалиброван на одном профиле: пороги 0.3/0.5, правило
-nearest-neighbor и p75 для Variability подобраны на этих данных.
-Проба на 10–15 добровольцах покажет, переносятся ли они — дают ли
-оси осмысленный разброс уровней, не сваливаются ли архетипы в
-один-два, не оказывается ли Variability у всех Medium из-за
-self-relative порога. Только после этого — калибровка на большей
-выборке и проверка, воспроизводятся ли архетипы как устойчивые
-кластеры, а не удобное разбиение пространства осей.
+**Sound Variability within the compass depends on the practical threshold.** When the quantile changes from p50 to p95, lifetime changes from 0.667 (High) to 0.083 (Low). Details — in `02_methodology/README.md`, section "Limitations".
+
+## Possible Development
+
+The compass is calibrated on a single profile: thresholds 0.3/0.5, the nearest-neighbor rule, and p75 for Variability are fitted to this data. A test on 10–15 volunteers will show whether they transfer — whether the axes yield a meaningful spread of levels, whether the archetypes collapse into one or two, and whether Variability turns out to be Medium for everyone due to the self-relative threshold. Only after that — calibration on a larger sample and checking whether the archetypes reproduce as stable clusters, rather than a convenient partition of the axis space.

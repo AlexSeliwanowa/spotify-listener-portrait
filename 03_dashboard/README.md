@@ -2,37 +2,51 @@
 
 # 03_dashboard
 
+The final layer. Takes 31 parquets from `datasets/` and renders them in Streamlit — no recalculation. 
+
 **Live version:** https://spotify-listener-portrait-a3resx9aolc4svjcpegwhq.streamlit.app/
 
-The final layer of the project: turns parquet files from `00_prep` into 31 aggregates ready for display in the Streamlit dashboard.
+**The dashboard is ready to run right after cloning the repository.** 31 parquets are already in `dashboard/datasets/` — the `data/` folder is not needed. Recalculation is only required if the data in `00_output/` has changed.
 
-## Structure
+Five tabs (Sound, Time, Behavior, Collection, Overview) × three periods (Lifetime, Last 18 months, Last 90 days). Two modes — **Personal** and **Professional** — are described below in the "Personal vs. Professional Modes" section.
 
-```
+Data comes from two sources:
+- **`00_prep`** — 15 parquets in `data/00_output/`.
+- **`dashboard_data_prep.ipynb`** — 30 aggregates + masking → 31 parquets in `dashboard/datasets/`.
+
+Calculation logic lives in `src/` and `dashboard_data_prep.ipynb`. The `app.py` itself only reads parquets and draws.
+
+## Directory Structure
+
+```text
 03_dashboard/
-├── dashboard_data_prep.ipynb   calculates 30 aggregates, masks, copies to datasets/
-├── dashboard/                  the dashboard itself (Streamlit)
-│   ├── app.py                  entry point
-│   ├── config/                 JSON configs: themes, thresholds, texts, archetypes
-│   ├── data/                   Python modules for loading parquets
-│   ├── logic/                  rendering and formatting logic
-│   ├── ui/                     five tabs (sound, time, behavior, collection, overview)
-│   ├── tests/                  smoke tests
-│   └── datasets/               31 parquets — in git; four contain masked personal identifiers, the rest have none
-└── README.md
+├── dashboard_data_prep.ipynb           builds 31 parquets for the dashboard, copies to datasets/
+├── METHODOLOGY_BEHAVIOR_COMPASS.md     archetype and compass logic
+├── METHODOLOGY_BEHAVIOR_COMPASS_ru.md
+├── README.md
+├── README_ru.md
+└── dashboard/                          the dashboard itself (Streamlit)
+    ├── app.py                          entry point
+    ├── pdf_report.py                   PDF generation
+    ├── config/                         JSON configs: themes, thresholds, texts, archetypes
+    ├── data/                           Python modules for loading parquets
+    ├── logic/                          rendering and formatting logic
+    ├── ui/                             five tabs (sound, time, behavior, collection, overview)
+    ├── tests/                          smoke tests
+    └── datasets/                       31 parquets — in git; four contain masked personal identifiers
 ```
 
-## How it works end-to-end
+## Data Flow & Architecture
 
 Three layers:
 
-**1. `01_data_analysis/00_prep/`** — builds 15 parquet files from raw Spotify exports into `data/00_output/`. History, features, playlists, library, owners.
+**1. `01_data_analysis/00_prep/`** — assembles 15 parquets from raw Spotify exports into `data/00_output/`. History, features, playlists, library, owners.
 
 **2. `dashboard_data_prep.ipynb`** — reads 6 of these parquets, calculates 30 aggregates. Writes privately to `data/00_output/dashboard/`, then masks and copies to `dashboard/datasets/` (31 parquets).
 
-**3. In `datasets/` only personal identifiers are masked (email, account IDs, personal playlist names), in four parquets. The remaining parquets contain no identifiers. Before writing to `datasets/`, these four are passed through `src/mask.py`:
+**3. Data masking.** In `datasets/`, only personal identifiers (email, account IDs, personal playlist names) are masked, in four parquets. The remaining parquets contain no identifiers. Before writing to `datasets/`, these four are passed through `src/mask.py`:
 
-```
+```text
 data/00_output/*.parquet   (15 files)
         │
         ↓
@@ -46,7 +60,7 @@ dashboard_data_prep.ipynb
 dashboard/app.py  →  streamlit run
 ```
 
-## Prep notebook `dashboard_data_prep.ipynb`
+## Data Preparation Pipeline
 
 **What it does by cells:**
 
@@ -62,9 +76,9 @@ dashboard/app.py  →  streamlit run
 
 **When to run:** after `00_prep`, before launching the dashboard. Once, or again if data in `00_output/` changed.
 
-## What goes into `dashboard/datasets/`
+## Output Datasets
 
-31 parquets: the prep notebook calculates 30 aggregates, 31 parquets go to datasets/ — the difference is `playlist_links.parquet`.
+The output folder contains **31 parquets**: 30 new aggregates calculated by the prep notebook, plus the transferred `playlist_links.parquet`.
 
 | Location | Count | What |
 |---|---|---|
@@ -77,7 +91,7 @@ dashboard/app.py  →  streamlit run
 
 Full field-level description of each parquet — in markdown cells at the end of `dashboard_data_prep.ipynb`.
 
-## Masking
+## Data Masking
 
 Four parquets contain real values. Before writing to `datasets/` they are passed through `src/mask.py`:
 
@@ -92,7 +106,7 @@ Rules: email → `1@mail.com` / `2@mail.com` / `3@mail.com`, owner_id → `accou
 
 Mapping — in `scripts/mask_config.json`, local, in `.gitignore`. Without it masking is skipped, prep notebook warns.
 
-## Dashboard
+## Dashboard Overview
 
 **5 tabs × 2 modes × 3 periods.**
 
@@ -104,15 +118,15 @@ Mapping — in `scripts/mask_config.json`, local, in `.gitignore`. Without it ma
 | **Collection** | Playlists, autoportraits, participants, fill types |
 | **Overview** | Archetype, takeaways, snapshot of indices, biggest shift, full reference |
 
-## Personal / Professional
+## Personal vs. Professional Modes
 
-Same data, two lenses.
+One dashboard, two lenses on the data.
 
-**Personal** answers "who am I". Dark theme. Addresses the user as "you". Archetype large, compass geometry, obsessions — "tracks you couldn't stop listening to". No formulas, no bases, no methodology. Cards with names (Niche, Genres, Skipper, Night Owl), not indices. Export — PDF for Lifetime.
+**Personal** answers the question "who are you as a listener". The person here is the **subject**: a warm, neutral tone; facts without judgment; not a single phrase like "this is good" or "this is bad". Even trend arrows remain uncolored by evaluation. Methodological caveats (like `≈` for borderline values or warnings about model fragility) do not appear here, because they are not facts about the person.
 
-**Professional** answers "what's in the data". Light theme. Impersonal. Caption with base in each tab. ⓘ and formulas on index cards. Plus what Personal lacks: funnels, cohorts, skip/full play split, changepoints table, cluster summary, feature contributions. Export — CSV of all indices × 3 windows.
+**Professional** answers the question "what does this mean, and how much can we trust it". The person here is the **object of analysis**. Metrics are evaluated through polarity (green and red only where "good" and "bad" actually make sense; taste metrics have no color). Exact values, formulas, applicability limits, and model quality (silhouette, match_distance) are shown.
 
-This is not "simplified / full". These are two different languages about the same thing.
+**Core idea:** evaluation and uncertainty are shown only where they are appropriate, and neither is passed off as a fact about the person.
 
 **Periods:** `Lifetime` (global), `Last 18 months` (recent_6q), `Last 90 days` (last_90d).
 
@@ -129,26 +143,26 @@ Display thresholds, texts, levels — in `config/*.json`. Local logic constants 
 
 **Hardcoded in UI** (deliberately): index lists for tabs (`TIME_INDICES`, `BEHAVIOR_INDICES`), compass axes order (`axes_order`), numeric levels (`level_num`), genre palette. Used in one place, rarely changed.
 
-## Data contract
+## Data Schema & Validation
 
 `data/schemas.py` — list of required columns for each parquet. On load, `load_parquet` calls `validate()`. If a column is missing — red banner indicating exactly what. The dashboard doesn't fail silently.
 
-## Tests
+## Testing
 
 From the `dashboard/` folder:
 
-```
+```bash
 python -m pytest tests/ -v
 ```
 
 Smoke tests check the data contract, not logic: parquets in place, schemas match, `ui/*` modules import, `app.py` parses.
 
-## Launch
+## Getting Started
 
 **The dashboard is ready to run right after cloning the repository.** 31 parquets are already in `dashboard/datasets/`, no `data/` folder needed.
 
-```
-git clone <repo-url>
+```bash
+git clone https://github.com/AlexSeliwanowa/spotify-listener-portrait.git
 cd spotify-listener-portrait
 pip install -r requirements.txt
 streamlit run 03_dashboard/dashboard/app.py
@@ -165,13 +179,13 @@ Full path:
 **1.** Run `00_prep` — build 15 parquets in `data/00_output/`.
 
 **2.** Run the prep notebook:
-```
+```bash
 jupyter notebook 03_dashboard/dashboard_data_prep.ipynb
 ```
 Output: 30 aggregates in `data/00_output/dashboard/`, 31 parquets in `dashboard/datasets/`.
 
 **3.** Restart the dashboard:
-```
+```bash
 streamlit run 03_dashboard/dashboard/app.py
 ```
 
@@ -185,12 +199,13 @@ streamlit run 03_dashboard/dashboard/app.py
 - **Masking depends on `scripts/mask_config.json`**. Without it data goes to `datasets/` unmasked.
 - **PDF report** — compass is drawn via matplotlib, visually simpler than in Streamlit (plotly). Limitation known, not a priority.
 - **Variability label (Low / Medium / High) is relative to the profile** and is not comparable between users. In the dashboard it is used as an indicator within a user's history, not an absolute scale.
-- **Rerun on your own data has not been tested.** The prep notebook can be run on your own Spotify export after `00_prep`, but thresholds (KMeans silhouette, stability 0.10, practical p75) are calibrated on the current data and may need revision. The output schema (`data/schemas.py`) transfers; the numbers do not.
+- **Rerun on other data has not been tested.** The data schema will match, and the dashboard will render a different number of clusters (KMeans sweeps `k` from 2 to 6, and another profile's optimum may shift). However, the cluster naming rules (`get_cluster_name` in `logic/profile.py`) use fixed absolute thresholds. If the user's audio feature distribution does not fall into these ranges, clusters may get uninformative names (e.g., `Mixed Style`).
 
-## See also
+## Related Documentation
 
 - [Root README](../README.md) — project overview
 - [01_data_analysis](../01_data_analysis/README.md) — EDA and data assembly
 - [00_prep](../01_data_analysis/00_prep/README.md) — parquet assembly
 - [02_methodology](../02_methodology/README.md) — Time Detector study
 - [src](../src/README.md) — pipeline architecture
+- [Compass methodology](./METHODOLOGY_BEHAVIOR_COMPASS.md) — archetype and compass logic
